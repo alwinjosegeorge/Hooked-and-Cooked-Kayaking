@@ -94,7 +94,7 @@ export default function BookingSection({
       currency: 'INR',
       name: 'Hooked & Cooked',
       description: `${selectedRouteObj?.name || 'Kayak Expedition'} - ${form.guests} Guests`,
-      image: '/logo.jpg',
+      image: '/logo.png',
       handler: async function () {
         // Real checkout payment success callback
         const res = onAddBooking({

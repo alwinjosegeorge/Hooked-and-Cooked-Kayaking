@@ -44,7 +44,7 @@ export default function Footer() {
           <div className="col-span-2 lg:col-span-1 space-y-4">
             <div className="flex items-center gap-3">
               <img 
-                src="/logo.jpg" 
+                src="/logo.png" 
                 alt="Hooked & Cooked Logo" 
                 className="w-12 h-12 md:w-14 md:h-14 object-contain shrink-0" 
               />

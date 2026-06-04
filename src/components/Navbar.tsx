@@ -162,7 +162,7 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
           <a href="#" onClick={(e) => handleLinkClick(e, '#')} className="flex items-center gap-3 group shrink-0">
             <motion.img 
               layoutId="logo-transition"
-              src="/logo.jpg" 
+              src="/logo.png" 
               alt="Hooked & Cooked Logo" 
               className={`object-contain transition-all duration-300 shrink-0 ${
                 isHome && scrolled ? 'w-10 h-10' : 'w-11 h-11 sm:w-12 sm:h-12'
