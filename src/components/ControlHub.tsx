@@ -909,7 +909,7 @@ export default function ControlHub({
 
                           {/* Interactive seat visualization blocks - 12 segments grid */}
                           <div className="flex items-center justify-between gap-4 mt-2">
-                            <div className="flex-1 flex gap-1.5">
+                            <div className="flex-1 flex gap-0.5 sm:gap-1.5">
                               {Array.from({ length: CAPACITY }).map((_, idx) => {
                                 const isFilled = idx < occupancy;
                                 return (
@@ -1013,10 +1013,10 @@ export default function ControlHub({
               {/* Controls bar */}
               <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white p-6 rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
                 
-                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full md:w-auto">
                   
                   {/* Search box */}
-                  <div className="relative">
+                  <div className="relative w-full sm:w-64">
                     <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input 
                       type="text" 
@@ -1026,7 +1026,7 @@ export default function ControlHub({
                         setBookingsSearch(e.target.value);
                         setBookingsPage(1);
                       }}
-                      className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-64 focus:outline-none focus:border-[#0D2B35] bg-[#E8E3D8]/40"
+                      className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-full focus:outline-none focus:border-[#0D2B35] bg-[#E8E3D8]/40"
                     />
                   </div>
 
@@ -1084,8 +1084,60 @@ export default function ControlHub({
                 {/* Bookings table list */}
                 <div className={`${selectedBookingId ? 'lg:col-span-2' : 'lg:col-span-3'} bg-white rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden transition-all duration-300`}>
                   
-                  {/* Table header */}
-                  <div className="overflow-x-auto">
+                  {/* Mobile Card-based List (block md:hidden) */}
+                  <div className="block md:hidden divide-y divide-gray-100">
+                    {paginatedBookings.length === 0 ? (
+                      <div className="text-center py-12 text-gray-400 font-semibold">
+                        No bookings found matching filter queries.
+                      </div>
+                    ) : (
+                      paginatedBookings.map((b) => {
+                        const isSelected = selectedBookingId === b.id;
+                        return (
+                          <div 
+                            key={b.id} 
+                            onClick={() => setSelectedBookingId(b.id)}
+                            className={`p-4 hover:bg-gray-50/50 transition-colors cursor-pointer space-y-2.5 ${
+                              isSelected ? 'bg-blue-50/30' : ''
+                            }`}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="font-mono font-black text-[#0D2B35] text-[11px]">{b.id}</span>
+                              <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${
+                                b.status === 'Checked In' 
+                                  ? 'bg-emerald-100 text-emerald-800' 
+                                  : b.status === 'Confirmed'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : b.status === 'Pending'
+                                      ? 'bg-amber-100 text-amber-800'
+                                      : 'bg-rose-100 text-rose-800'
+                              }`}>
+                                {b.status}
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-800">
+                              <span className="font-extrabold text-gray-900 text-sm block">{b.name}</span>
+                              <div className="text-gray-500 font-medium mt-1 truncate max-w-[280px]">
+                                {getRouteName(b.route)}
+                              </div>
+                              <div className="text-gray-400 mt-0.5">
+                                {b.slot} • {b.kayakType} • {new Date(b.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                              </div>
+                            </div>
+                            <div className="flex justify-between items-center pt-1 border-t border-gray-50">
+                              <span className="font-extrabold text-gray-900">₹{b.amount.toLocaleString('en-IN')}</span>
+                              <button className="text-xs font-bold text-[#0D2B35] hover:underline">
+                                Inspect →
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Desktop Table view (hidden md:block) */}
+                  <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-wider">
@@ -1420,52 +1472,84 @@ export default function ControlHub({
               </div>
 
               <div className="bg-white rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-wider">
-                      <th className="py-4 px-6">Customer Name</th>
-                      <th className="py-4 px-6">Phone Number</th>
-                      <th className="py-4 px-6">Email Address</th>
-                      <th className="py-4 px-6 text-center">Total Bookings</th>
-                      <th className="py-4 px-6 text-right">Aggregate Spent</th>
-                      <th className="py-4 px-6">Original Source</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 text-xs text-gray-800">
-                    {paginatedCustomers.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="text-center py-16 text-gray-400 font-semibold">
-                          No customer entries recorded.
-                        </td>
+                
+                {/* Mobile Card-based List (block md:hidden) */}
+                <div className="block md:hidden divide-y divide-gray-100">
+                  {paginatedCustomers.length === 0 ? (
+                    <div className="text-center py-12 text-gray-400 font-semibold">
+                      No customer entries recorded.
+                    </div>
+                  ) : (
+                    paginatedCustomers.map((c, idx) => (
+                      <div key={idx} className="p-4 space-y-2 hover:bg-gray-50/50 transition">
+                        <div className="flex justify-between items-start">
+                          <span className="font-extrabold text-gray-900 text-sm">{c.name}</span>
+                          <span className="bg-[#C8A86B]/10 text-[#C8A86B] px-2 py-0.5 rounded-full text-[9px] uppercase font-black tracking-wide">
+                            {c.source}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500 font-medium space-y-1">
+                          <div>Phone: <span className="text-gray-800 font-semibold">{c.phone}</span></div>
+                          {c.email && c.email !== 'N/A' && <div>Email: <span className="text-gray-800 font-semibold break-all">{c.email}</span></div>}
+                        </div>
+                        <div className="flex justify-between items-center pt-2 border-t border-gray-50 text-xs">
+                          <span className="text-gray-400 font-medium">Bookings: <strong className="text-gray-900 font-bold">{c.totalBookings}</strong></span>
+                          <span className="text-gray-400 font-medium">Spent: <strong className="text-gray-900 font-black">₹{c.totalSpent.toLocaleString('en-IN')}</strong></span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Desktop Table view (hidden md:block) */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-wider">
+                        <th className="py-4 px-6">Customer Name</th>
+                        <th className="py-4 px-6">Phone Number</th>
+                        <th className="py-4 px-6">Email Address</th>
+                        <th className="py-4 px-6 text-center">Total Bookings</th>
+                        <th className="py-4 px-6 text-right">Aggregate Spent</th>
+                        <th className="py-4 px-6">Original Source</th>
                       </tr>
-                    ) : (
-                      paginatedCustomers.map((c, idx) => (
-                        <tr key={idx} className="hover:bg-gray-50/50 transition">
-                          <td className="py-4 px-6 font-extrabold text-gray-900">
-                            {c.name}
-                          </td>
-                          <td className="py-4 px-6 font-semibold">
-                            {c.phone}
-                          </td>
-                          <td className="py-4 px-6 text-gray-600 font-medium">
-                            {c.email}
-                          </td>
-                          <td className="py-4 px-6 text-center font-bold text-gray-900">
-                            {c.totalBookings}
-                          </td>
-                          <td className="py-4 px-6 text-right font-black text-gray-900">
-                            ₹{c.totalSpent.toLocaleString('en-IN')}
-                          </td>
-                          <td className="py-4 px-6">
-                            <span className="bg-[#C8A86B]/10 text-[#C8A86B] px-2.5 py-0.5 rounded-full text-[9px] uppercase font-black tracking-wide">
-                              {c.source}
-                            </span>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 text-xs text-gray-800">
+                      {paginatedCustomers.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="text-center py-16 text-gray-400 font-semibold">
+                            No customer entries recorded.
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        paginatedCustomers.map((c, idx) => (
+                          <tr key={idx} className="hover:bg-gray-50/50 transition">
+                            <td className="py-4 px-6 font-extrabold text-gray-900">
+                              {c.name}
+                            </td>
+                            <td className="py-4 px-6 font-semibold">
+                              {c.phone}
+                            </td>
+                            <td className="py-4 px-6 text-gray-600 font-medium">
+                              {c.email}
+                            </td>
+                            <td className="py-4 px-6 text-center font-bold text-gray-900">
+                              {c.totalBookings}
+                            </td>
+                            <td className="py-4 px-6 text-right font-black text-gray-900">
+                              ₹{c.totalSpent.toLocaleString('en-IN')}
+                            </td>
+                            <td className="py-4 px-6">
+                              <span className="bg-[#C8A86B]/10 text-[#C8A86B] px-2.5 py-0.5 rounded-full text-[9px] uppercase font-black tracking-wide">
+                                {c.source}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
 
                 {filteredCustomers.length > 0 && (
                   <div className="bg-gray-50/50 border-t border-gray-100 px-6 py-4 flex justify-between items-center">
@@ -1540,58 +1624,97 @@ export default function ControlHub({
               </div>
 
               <div className="bg-white rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-wider">
-                      <th className="py-4 px-6">Booking Transaction ID</th>
-                      <th className="py-4 px-6">Paddler Client</th>
-                      <th className="py-4 px-6">Booking Date</th>
-                      <th className="py-4 px-6">Channel Gateway</th>
-                      <th className="py-4 px-6">Payment Status</th>
-                      <th className="py-4 px-6 text-right">Paid Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 text-xs text-gray-800">
-                    {paginatedPayments.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="text-center py-16 text-gray-400 font-semibold">
-                          No paid transactions matching search logs.
-                        </td>
-                      </tr>
-                    ) : (
-                      paginatedPayments.map((b) => (
-                        <tr key={b.id} className="hover:bg-gray-50/50 transition">
-                          <td className="py-4 px-6 font-mono font-black text-[#0D2B35]">
-                            {b.id}
-                          </td>
-                          <td className="py-4 px-6 font-extrabold text-gray-900">
-                            {b.name}
-                          </td>
-                          <td className="py-4 px-6 font-medium text-gray-500">
-                            {new Date(b.date).toLocaleDateString('en-GB', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric'
-                            })}
-                          </td>
-                          <td className="py-4 px-6">
+                
+                {/* Mobile Card-based List (block md:hidden) */}
+                <div className="block md:hidden divide-y divide-gray-100">
+                  {paginatedPayments.length === 0 ? (
+                    <div className="text-center py-12 text-gray-400 font-semibold">
+                      No paid transactions matching search logs.
+                    </div>
+                  ) : (
+                    paginatedPayments.map((b) => (
+                      <div key={b.id} className="p-4 space-y-2 hover:bg-gray-50/50 transition">
+                        <div className="flex justify-between items-center">
+                          <span className="font-mono font-black text-[#0D2B35] text-xs">{b.id}</span>
+                          <span className="text-emerald-800 bg-emerald-100 font-black uppercase tracking-wider text-[9px] px-2 py-0.5 rounded">
+                            {b.paymentStatus}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-800">
+                          <span className="font-extrabold text-gray-900 text-sm block">{b.name}</span>
+                          <div className="text-gray-400 font-semibold mt-1">
+                            Date: {new Date(b.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </div>
+                          <div className="mt-1">
                             <span className="bg-blue-50 text-blue-800 px-2 py-0.5 rounded text-[10px] font-bold">
                               {b.source === 'Online' ? 'Razorpay Sandbox' : `${b.source} Override`}
                             </span>
-                          </td>
-                          <td className="py-4 px-6">
-                            <span className="text-emerald-800 bg-emerald-100 font-black uppercase tracking-wider text-[9px] px-2 py-0.5 rounded">
-                              {b.paymentStatus}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6 text-right font-black text-gray-900">
-                            ₹{b.amount.toLocaleString('en-IN')}
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center pt-2 border-t border-gray-50 text-xs">
+                          <span className="text-gray-400 font-medium">Paid Amount:</span>
+                          <span className="font-black text-gray-900">₹{b.amount.toLocaleString('en-IN')}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Desktop Table view (hidden md:block) */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-wider">
+                        <th className="py-4 px-6">Booking Transaction ID</th>
+                        <th className="py-4 px-6">Paddler Client</th>
+                        <th className="py-4 px-6">Booking Date</th>
+                        <th className="py-4 px-6">Channel Gateway</th>
+                        <th className="py-4 px-6">Payment Status</th>
+                        <th className="py-4 px-6 text-right">Paid Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 text-xs text-gray-800">
+                      {paginatedPayments.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="text-center py-16 text-gray-400 font-semibold">
+                            No paid transactions matching search logs.
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        paginatedPayments.map((b) => (
+                          <tr key={b.id} className="hover:bg-gray-50/50 transition">
+                            <td className="py-4 px-6 font-mono font-black text-[#0D2B35]">
+                              {b.id}
+                            </td>
+                            <td className="py-4 px-6 font-extrabold text-gray-900">
+                              {b.name}
+                            </td>
+                            <td className="py-4 px-6 font-medium text-gray-500">
+                              {new Date(b.date).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                              })}
+                            </td>
+                            <td className="py-4 px-6">
+                              <span className="bg-blue-50 text-blue-800 px-2 py-0.5 rounded text-[10px] font-bold">
+                                {b.source === 'Online' ? 'Razorpay Sandbox' : `${b.source} Override`}
+                              </span>
+                            </td>
+                            <td className="py-4 px-6">
+                              <span className="text-emerald-800 bg-emerald-100 font-black uppercase tracking-wider text-[9px] px-2 py-0.5 rounded">
+                                {b.paymentStatus}
+                              </span>
+                            </td>
+                            <td className="py-4 px-6 text-right font-black text-gray-900">
+                              ₹{b.amount.toLocaleString('en-IN')}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
 
                 {filteredPayments.length > 0 && (
                   <div className="bg-gray-50/50 border-t border-gray-100 px-6 py-4 flex justify-between items-center">
@@ -1980,7 +2103,7 @@ export default function ControlHub({
       {/* Modal: Manual Add Booking */}
       {showAddBookingModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setShowAddBookingModal(false)}
               className="absolute top-6 right-6 p-1 rounded-full text-gray-400 hover:bg-gray-100 transition"
@@ -2157,7 +2280,7 @@ export default function ControlHub({
       {/* Modal: Block Date */}
       {showBlockDateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 space-y-6 shadow-2xl relative">
+          <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-8 space-y-6 shadow-2xl relative">
             <button 
               onClick={() => setShowBlockDateModal(false)}
               className="absolute top-6 right-6 p-1 rounded-full text-gray-400 hover:bg-gray-100 transition"
@@ -2207,7 +2330,7 @@ export default function ControlHub({
       {/* Modal: Close Slot */}
       {showCloseSlotModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 space-y-6 shadow-2xl relative">
+          <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-8 space-y-6 shadow-2xl relative">
             <button 
               onClick={() => setShowCloseSlotModal(false)}
               className="absolute top-6 right-6 p-1 rounded-full text-gray-400 hover:bg-gray-100 transition"
@@ -2270,7 +2393,7 @@ export default function ControlHub({
       {/* Modal: Add Customer */}
       {showAddCustomerModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 space-y-6 shadow-2xl relative">
+          <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-8 space-y-6 shadow-2xl relative">
             <button 
               onClick={() => setShowAddCustomerModal(false)}
               className="absolute top-6 right-6 p-1 rounded-full text-gray-400 hover:bg-gray-100 transition"
