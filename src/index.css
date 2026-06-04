@@ -42,13 +42,19 @@ html, body {
   background-image: url('/bg-grain.png'), linear-gradient(180deg, #0D2B35 0%, #091F27 100%);
   background-repeat: repeat, no-repeat;
   background-size: auto, 100% 100%;
-  background-attachment: scroll, fixed;
+  background-attachment: scroll, scroll;
   color: #E8E3D8;
   font-family: 'Outfit', sans-serif;
   overflow-x: hidden;
   margin: 0;
   padding: 0;
   scroll-behavior: auto; /* Managed by Lenis */
+}
+
+@media (min-width: 1024px) {
+  html, body {
+    background-attachment: scroll, fixed;
+  }
 }
 
 /* Scrollbar styling */
@@ -147,7 +153,13 @@ html.lenis, html.lenis body {
   background-image: url('/bg-grain.png'), linear-gradient(180deg, #0D2B35 0%, #091F27 100%);
   background-repeat: repeat, no-repeat;
   background-size: auto, 100% 100%;
-  background-attachment: scroll, fixed;
+  background-attachment: scroll, scroll;
+}
+
+@media (min-width: 1024px) {
+  .bg-premium-dark-grain {
+    background-attachment: scroll, fixed;
+  }
 }
 
 /* Mobile bottom sheet slide up & fade-in animations */

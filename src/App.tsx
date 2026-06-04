@@ -583,7 +583,7 @@ function App() {
             
             <motion.img
               layoutId="logo-transition"
-              src="/logo.png"
+              src="/logo.jpg"
               alt="Hooked & Cooked Logo"
               className="w-24 h-24 object-contain relative z-10"
               transition={{ type: "spring", stiffness: 120, damping: 18 }}

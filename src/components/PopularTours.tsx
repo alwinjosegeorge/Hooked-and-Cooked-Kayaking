@@ -8,7 +8,7 @@ const popularTours = [
     price: "₹450",
     subPrice: "per person",
     badge: "Most Popular",
-    image: "/mangrove_tour.png",
+    image: "/mangrove_tour.jpg",
     desc: "Paddle through scenic mangrove waterways and peaceful backwater routes across Kadambrayar."
   },
   {
@@ -16,19 +16,19 @@ const popularTours = [
     price: "₹450",
     subPrice: "per person",
     badge: "Sunset Special",
-    image: "/sunset_tour.png",
+    image: "/sunset_tour.jpg",
     desc: "Experience golden sunsets and calm village waters through curated evening paddles."
   },
   {
     title: "Vembanad Lake Wilderness Paddle",
     badge: "Full Day Adventure",
-    image: "/vembanad_tour.png",
+    image: "/vembanad_tour.jpg",
     desc: "Explore the open waters and peaceful beauty of Kerala’s iconic backwater landscapes."
   },
   {
     title: "Kadamakkudy Island Explorer",
     badge: "Countryside Escape",
-    image: "/kadamakkudy_tour.png",
+    image: "/kadamakkudy_tour.jpg",
     desc: "Discover hidden island villages, quiet waters, and authentic countryside experiences."
   }
 ];

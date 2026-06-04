@@ -19,19 +19,19 @@ const ROUTES = [
     id: 'kadambrayar',
     name: 'Kadambrayar River Expedition',
     desc: 'Glide through pristine mangrove forests during sunrise.',
-    image: '/mangrove_tour.png',
+    image: '/mangrove_tour.jpg',
   },
   {
     id: 'vembanad',
     name: 'Vembanad Backwater Odyssey',
     desc: 'Explore the wide wilderness and traditional canals.',
-    image: '/vembanad_tour.png',
+    image: '/vembanad_tour.jpg',
   },
   {
     id: 'kadamakudy',
     name: 'Kadamakudy Village Explorer',
     desc: 'Immerse in local island fish farms and sunset views.',
-    image: '/sunset_tour.png',
+    image: '/sunset_tour.jpg',
   },
 ];
 
@@ -94,7 +94,7 @@ export default function BookingSection({
       currency: 'INR',
       name: 'Hooked & Cooked',
       description: `${selectedRouteObj?.name || 'Kayak Expedition'} - ${form.guests} Guests`,
-      image: '/logo.png',
+      image: '/logo.jpg',
       handler: async function () {
         // Real checkout payment success callback
         const res = onAddBooking({
@@ -1068,8 +1068,8 @@ export default function BookingSection({
                       >
                         <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
                           {[
-                            { type: 'single' as const, label: 'Single Kayak', sub: '₹450 / Person', icon: '/single_kayak.png' },
-                            { type: 'double' as const, label: 'Double Kayak', sub: '₹900 / Hull', icon: '/double_kayak.png' },
+                            { type: 'single' as const, label: 'Single Kayak', sub: '₹450 / Person', icon: '/single_kayak.jpg' },
+                            { type: 'double' as const, label: 'Double Kayak', sub: '₹900 / Hull', icon: '/double_kayak.jpg' },
                           ].map(item => {
                             const isSelected = form.kayakType === item.type;
                             return (

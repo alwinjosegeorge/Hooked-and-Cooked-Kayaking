@@ -19,56 +19,56 @@ export default function GallerySection() {
       id: 1,
       category: 'expeditions',
       title: "Solo Backwater Exploration",
-      image: "/IMG_8470.JPG.jpeg",
+      image: "/IMG_8470.JPG.jpg",
       span: "aspect-[3/4]"
     },
     {
       id: 2,
       category: 'guests',
       title: "Paddling with Water Lilies",
-      image: "/IMG_8471.JPG.jpeg",
+      image: "/IMG_8471.JPG.jpg",
       span: "aspect-square"
     },
     {
       id: 3,
       category: 'mangroves',
       title: "Sunny Palm-lined Canals",
-      image: "/IMG_8473.PNG",
+      image: "/IMG_8473.png",
       span: "md:col-span-2 aspect-[16/10]"
     },
     {
       id: 4,
       category: 'guests',
       title: "Couples' River Date",
-      image: "/IMG_8474.PNG",
+      image: "/IMG_8474.png",
       span: "aspect-[4/3]"
     },
     {
       id: 5,
       category: 'sunsets',
       title: "Golden Hour Reflection",
-      image: "/IMG_8475.PNG",
+      image: "/IMG_8475.png",
       span: "aspect-square"
     },
     {
       id: 6,
       category: 'sunsets',
       title: "Peaceful Twilight Cruise",
-      image: "/IMG_8476.PNG",
+      image: "/IMG_8476.png",
       span: "aspect-[3/4]"
     },
     {
       id: 7,
       category: 'guests',
       title: "Our Furry Co-pilot",
-      image: "/IMG_8477.PNG",
+      image: "/IMG_8477.png",
       span: "md:col-span-2 aspect-[16/10]"
     },
     {
       id: 8,
       category: 'expeditions',
       title: "Father & Son Sunset Paddle",
-      image: "/IMG_8478.PNG",
+      image: "/IMG_8478.jpg",
       span: "aspect-[4/3]"
     }
   ];

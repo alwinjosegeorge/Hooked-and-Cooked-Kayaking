@@ -23,12 +23,13 @@ export default function Hero() {
       {/* Mobile-optimized portrait video */}
       <video
         src="/phone_home_page.mp4"
+        poster="/hero_bg.jpg"
         autoPlay
         loop
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover object-[65%_bottom] scale-120 z-0 opacity-95 block md:hidden"
+        className="absolute inset-0 w-full h-full object-cover object-[65%_bottom] scale-120 z-0 opacity-95 block md:hidden transform-gpu will-change-transform"
       />
       {/* Desktop-optimized landscape video */}
       <video
@@ -38,7 +39,7 @@ export default function Hero() {
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-95 hidden md:block"
+        className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-95 hidden md:block transform-gpu will-change-transform"
       />
       {/* Dark overlay matching the moody cinematic Scandinavian travel vibe */}
       <div className="absolute inset-0 z-0 bg-gradient-to-t from-abyss-black via-abyss-black/35 to-black/50" />

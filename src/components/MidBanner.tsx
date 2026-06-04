@@ -36,7 +36,7 @@ export default function MidBanner() {
       <div className="relative w-full aspect-[21/9] md:aspect-[24/9] overflow-hidden border-t border-glacier-cyan/15 group">
         <div className="absolute inset-0 bg-gradient-to-b from-abyss-black via-abyss-black/25 to-transparent z-10" />
         <img
-          src="/hero_bg.png"
+          src="/hero_bg.jpg"
           alt="Panoramic Kayaking along Scenic Kochi Waterways"
           className="w-full h-full object-cover opacity-80 transition-transform duration-10000 ease-out group-hover:scale-103"
         />
@@ -79,7 +79,7 @@ export default function MidBanner() {
               className="lg:col-span-6 relative rounded-3xl overflow-hidden shadow-[0_15px_40px_rgba(7,25,29,0.12)] group aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-[400px] border border-[#e2ecee]"
             >
               <img
-                src="/sunset_tour.png"
+                src="/sunset_tour.jpg"
                 alt="Family Kayaking under Kerala Coconut Palms"
                 className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-104"
               />
