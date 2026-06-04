@@ -92,7 +92,7 @@ const initializeDatabase = async () => {
 // 1. Bookings APIs
 app.get('/api/bookings', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM bookings ORDER BY id ASC');
+    const result = await pool.query('SELECT * FROM bookings ORDER BY id DESC');
     const bookings = result.rows.map(row => ({
       id: row.id,
       date: row.date,

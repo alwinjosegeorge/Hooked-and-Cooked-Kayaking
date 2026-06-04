@@ -220,7 +220,7 @@ const generateMockBookings = (): Booking[] => {
   return mock.map(b => ({
     ...b,
     securityToken: generateSecurityToken(b.id, b.name, b.route, b.slot, b.date, b.guests)
-  })).sort((a, b) => a.id.localeCompare(b.id));
+  })).sort((a, b) => b.id.localeCompare(a.id));
 };
 
 function App() {
@@ -253,7 +253,8 @@ function App() {
 
         if (bookingsRes.ok) {
           const data = await bookingsRes.json();
-          setBookings(data);
+          const sorted = data.sort((a: Booking, b: Booking) => b.id.localeCompare(a.id));
+          setBookings(sorted);
         }
         if (blockedRes.ok) {
           const data = await blockedRes.json();
@@ -294,12 +295,12 @@ function App() {
 
     // 3. Lenis Kinetic Smooth Scrolling
     const lenis = new Lenis({
-      duration: 2.2,
+      duration: 1.1,
       easing: (t) => 1 - Math.pow(1 - t, 5),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      wheelMultiplier: 0.9,
+      wheelMultiplier: 1.0,
       touchMultiplier: 2.0,
     });
     (window as any).lenis = lenis;

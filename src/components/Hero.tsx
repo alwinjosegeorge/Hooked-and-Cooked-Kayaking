@@ -9,7 +9,7 @@ export default function Hero() {
     if (el) {
       const lenisInstance = (window as any).lenis;
       if (lenisInstance && typeof lenisInstance.scrollTo === 'function') {
-        lenisInstance.scrollTo(el, { duration: 1.8 });
+        lenisInstance.scrollTo(el, { duration: 0.9 });
       } else {
         el.scrollIntoView({ behavior: 'smooth' });
       }
