@@ -7,7 +7,7 @@
 export const siteConfig = {
   name: "Hooked & Cooked Boat Club",
   shortName: "Hooked & Cooked",
-  url: "https://www.visitkadambrayar.com",
+  url: "https://visitkadambrayar.com",
   description:
     "Guided backwater kayaking tours on the Kadambrayar river, Kochi. Fresh seafood riverside dining, eco-tourism activities near Kakkanad, Ernakulam, Kerala.",
   ogImage: "/og-image.jpg",

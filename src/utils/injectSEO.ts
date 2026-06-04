@@ -66,7 +66,7 @@ export function injectSEO(): void {
 
   // ── Page title ──────────────────────────────────────────
   document.title =
-    "Hooked & Cooked – River Dine | Kayaking Tours & Riverside Dining in Kochi, Kerala";
+    "Hooked & Cooked Boat Club | Kayaking in Kochi, Kadambrayar";
 
   // ── Core meta ───────────────────────────────────────────
   setMeta('meta[name="description"]',          "name", "description",          description);

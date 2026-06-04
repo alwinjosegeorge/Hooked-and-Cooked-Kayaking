@@ -300,6 +300,8 @@ export default function MobileBottomNav() {
               {/* Inactive Tab State (fades out and drops when active) */}
               <button
                 onClick={() => handleTabClick(tab.id, tab.action)}
+                aria-label={tab.label}
+                aria-selected={isActive}
                 className="flex flex-col items-center justify-center gap-1 bg-none border-none absolute"
                 style={{
                   opacity: isActive ? 0 : 1,
@@ -315,10 +317,12 @@ export default function MobileBottomNav() {
                   {tab.label}
                 </span>
               </button>
-
+ 
               {/* Active Tab State (rises, scales up, and pulses when active) */}
               <button
                 onClick={() => handleTabClick(tab.id, tab.action)}
+                aria-label={tab.label}
+                aria-selected={isActive}
                 className={`pulse-fab w-[60px] h-[60px] rounded-full flex flex-col items-center justify-center border border-[#C8A86B]/30 absolute`}
                 style={{
                   opacity: isActive ? 1 : 0,

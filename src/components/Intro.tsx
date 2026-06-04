@@ -23,7 +23,7 @@ export default function Intro() {
       desc: "Based in Kadambrayar, Kochi, we create peaceful kayaking experiences through Kerala’s beautiful backwaters for families, couples, and adventure lovers."
     },
     {
-      icon: <img src="/kayak.png" alt="Small Group" className="w-16 h-16 object-contain" loading="lazy" />,
+      icon: <img src="/kayak.webp" alt="Small Group" className="w-16 h-16 object-contain" loading="lazy" />,
       title: "SMALL GROUP &\nPRIVATE KAYAKING",
       desc: "Enjoy calm waters, scenic routes, and curated kayaking adventures designed for small groups, couples, and private experiences."
     },

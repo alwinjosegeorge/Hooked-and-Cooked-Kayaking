@@ -207,11 +207,35 @@ export const websiteSchema: Schema = {
   },
 };
 
+// ── 6. Organization schema ─────────────────────────────────
+export const organizationSchema: Schema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${siteConfig.url}/#organization`,
+  name: siteConfig.name,
+  alternateName: siteConfig.shortName,
+  url: siteConfig.url,
+  logo: `${siteConfig.url}/logo.webp`,
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: siteConfig.phone,
+    contactType: "customer service",
+    email: siteConfig.email,
+    availableLanguage: ["English", "Malayalam", "Hindi"],
+  },
+  sameAs: [
+    siteConfig.social.instagram,
+    siteConfig.social.facebook,
+  ],
+};
+
 // ── All schemas bundled ────────────────────────────────────
 export const allSchemas: Schema[] = [
   websiteSchema,
+  organizationSchema,
   localBusinessSchema,
   kayakingTourSchema,
   diningSchema,
   faqSchema,
 ];
+

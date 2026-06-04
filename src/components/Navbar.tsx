@@ -281,6 +281,8 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
           <div className="flex items-center lg:hidden pr-1">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
               className={`focus:outline-none transition-colors duration-300 p-2 rounded-full ${
                 isDarkTheme 
                   ? 'text-gray-400 hover:text-cream hover:bg-cream/5' 

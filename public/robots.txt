@@ -4,5 +4,5 @@ Disallow: /control-hub
 Disallow: /boarding-pass
 Disallow: /api/
 
-Sitemap: https://www.visitkadambrayar.com/sitemap.xml
-Host: https://www.visitkadambrayar.com
+Sitemap: https://visitkadambrayar.com/sitemap.xml
+Host: https://visitkadambrayar.com
