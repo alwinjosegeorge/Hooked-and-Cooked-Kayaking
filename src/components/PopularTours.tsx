@@ -134,12 +134,14 @@ export default function PopularTours() {
         <div className="flex items-center space-x-4 mt-10 md:mt-16 pt-4">
           <button 
             onClick={handlePrev}
+            aria-label="Previous tour"
             className="w-10 h-10 rounded-full border border-white/30 hover:border-white text-white flex items-center justify-center transition-colors cursor-pointer"
           >
             <ChevronLeft size={18} />
           </button>
           <button 
             onClick={handleNext}
+            aria-label="Next tour"
             className="w-10 h-10 rounded-full border border-white/30 hover:border-white text-white flex items-center justify-center transition-colors cursor-pointer"
           >
             <ChevronRight size={18} />

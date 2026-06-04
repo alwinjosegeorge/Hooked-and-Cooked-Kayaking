@@ -1,7 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Lenis from 'lenis';
 import { motion, AnimatePresence } from 'framer-motion';
-import QRCode from 'qrcode';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -396,9 +395,7 @@ function App() {
 
     const message = `Hi ${newBooking.name} 👋\n\nYour kayaking adventure has been confirmed.\n\nBooking ID:\n${newBooking.id}\n\nRoute:\n${routeNames[newBooking.route] || newBooking.route}\n\nDate:\n${formattedDate}\n\nTime:\n${newBooking.slot}\n\nGuests:\n${newBooking.guests}\n\nPlease show the QR code at check-in.\n\nOpen Boarding Pass & QR Ticket Link:\n${boardingUrl}\n\nSee you on the water! 🚣`;
 
-    // Do not show the WhatsApp sandbox alert popup on booking creation
-    QRCode.toDataURL(qrPayload, { margin: 1, width: 200 })
-      .catch(err => console.error('Error generating QR in App.tsx: ', err));
+
 
     return newBooking;
   };
@@ -627,22 +624,24 @@ function App() {
       ) : (
         <>
           <Navbar currentPath={currentPath} />
-          <Hero />
           <Suspense fallback={<div className="h-48 flex items-center justify-center text-glacier-cyan font-mono text-xs tracking-widest animate-pulse">LOADING ADVENTURE...</div>}>
-            <PopularTours />
-            <Intro />
-            <VideoSection />
-            
-            <BookingSection 
-              bookings={bookings}
-              blockedDates={blockedDates}
-              closedSlots={closedSlots}
-              onAddBooking={addBooking}
-            />
-            
-            <GallerySection />
-            <PaddleTogether />
-            <Reviews />
+            <main>
+              <Hero />
+              <PopularTours />
+              <Intro />
+              <VideoSection />
+              
+              <BookingSection 
+                bookings={bookings}
+                blockedDates={blockedDates}
+                closedSlots={closedSlots}
+                onAddBooking={addBooking}
+              />
+              
+              <GallerySection />
+              <PaddleTogether />
+              <Reviews />
+            </main>
             <Footer />
           </Suspense>
           <MobileBottomNav />

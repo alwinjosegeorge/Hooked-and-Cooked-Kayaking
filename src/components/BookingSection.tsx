@@ -451,10 +451,12 @@ export default function BookingSection({
     placeholder: string
   ) => (
     <div key={name} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label style={{ fontSize: '9.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: gold }}>
+      <label htmlFor={name} style={{ fontSize: '9.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: gold }}>
         {label}
       </label>
       <input
+        id={name}
+        name={name}
         type={type}
         required
         placeholder={placeholder}
@@ -874,13 +876,13 @@ export default function BookingSection({
                         <div style={{ maxWidth: '400px', margin: '0 auto' }}>
                           {/* Luxury Minimal Calendar Month Header */}
                           <div className="flex items-center justify-between mb-4 px-2">
-                            <button type="button" onClick={handlePrevMonth} className="text-gray-400 hover:text-ink text-xl cursor-pointer font-light">
+                            <button type="button" onClick={handlePrevMonth} aria-label="Previous month" className="text-gray-400 hover:text-ink text-xl cursor-pointer font-light">
                               ←
                             </button>
                             <span className="font-extrabold text-[12px] tracking-[0.2em] uppercase text-ink">
                               {months[currentMonth]} {currentYear}
                             </span>
-                            <button type="button" onClick={handleNextMonth} className="text-gray-400 hover:text-ink text-xl cursor-pointer font-light">
+                            <button type="button" onClick={handleNextMonth} aria-label="Next month" className="text-gray-400 hover:text-ink text-xl cursor-pointer font-light">
                               →
                             </button>
                           </div>
@@ -1126,8 +1128,9 @@ export default function BookingSection({
                             padding: '13px 18px', background: '#FFFFFF',
                             width: '100%', maxWidth: '240px',
                           }}>
-                            <button type="button"
+                             <button type="button"
                               onClick={() => setForm(p => ({ ...p, guests: Math.max(1, p.guests - 1) }))}
+                              aria-label="Decrease guest count"
                               style={{ background: 'none', border: 'none', fontSize: 22, color: gold, cursor: 'pointer', fontWeight: 600, lineHeight: 1, padding: 0 }}
                             >−</button>
                             <span style={{ fontSize: '14px', fontWeight: 700, color: ink }}>
@@ -1143,6 +1146,7 @@ export default function BookingSection({
                                   alert(`Only ${remaining} seats left for this departure time slot.`);
                                 }
                               }}
+                              aria-label="Increase guest count"
                               style={{ background: 'none', border: 'none', fontSize: 22, color: gold, cursor: 'pointer', fontWeight: 600, lineHeight: 1, padding: 0 }}
                             >+</button>
                           </div>

@@ -17,13 +17,13 @@ export default function Hero() {
   };
 
   return (
-    <div id="hero" className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-abyss-black select-none">
+    <header id="hero" className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-abyss-black select-none">
       
       {/* Background Video of Kochi tropical waterways */}
       {/* Mobile-optimized portrait video */}
       <video
         src="/phone_home_page.mp4"
-        poster="/hero_bg.jpg"
+        poster="/hero_bg.webp"
         autoPlay
         loop
         muted
@@ -111,6 +111,6 @@ export default function Hero() {
         </div>
       </div>
 
-    </div>
+    </header>
   );
 }

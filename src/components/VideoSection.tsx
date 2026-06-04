@@ -49,6 +49,7 @@ export default function VideoSection() {
           >
             <button
               onClick={() => setShowVideoModal(false)}
+              aria-label="Close video player"
               className="absolute top-6 right-6 text-white hover:text-glacier-cyan p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all cursor-pointer"
             >
               <X size={20} />

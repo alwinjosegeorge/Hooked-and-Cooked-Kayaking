@@ -24,11 +24,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        }
+        // Let Vite/Rollup code-split node_modules naturally to avoid bundling heavy libs into the main chunk
       }
     }
   }

@@ -90,6 +90,7 @@ export default function MidBanner() {
               <div className="absolute inset-0 flex items-center justify-center z-20">
                 <button 
                   onClick={() => setShowVideoModal(true)}
+                  aria-label="Learn more about family kayaking"
                   className="flex items-center gap-2 border border-white/80 bg-black/25 text-white text-[10px] tracking-widest font-mono uppercase px-6 py-3 rounded-full backdrop-blur-md hover:bg-white hover:text-black hover:scale-105 transition-all duration-300 shadow-lg cursor-pointer"
                 >
                   <span>Learn More</span>
@@ -147,6 +148,7 @@ export default function MidBanner() {
           >
             <button 
               onClick={() => setShowVideoModal(false)}
+              aria-label="Close video player"
               className="absolute top-6 right-6 text-white hover:text-glacier-cyan p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all cursor-pointer"
             >
               <X size={20} />

@@ -231,6 +231,7 @@ export default function BoardingPass() {
                 window.location.href = '/';
               }
             }}
+            aria-label="Go back"
             className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:bg-gray-50 border border-gray-100 transition-all cursor-pointer text-[#0A0915]"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -259,6 +260,7 @@ export default function BoardingPass() {
               <button 
                 type="button"
                 onClick={handleShare}
+                aria-label="Share boarding pass"
                 className="w-9 h-9 rounded-full bg-[#FFF0F0] hover:bg-[#FFE5E5] flex items-center justify-center text-[#FE5B63] hover:scale-105 active:scale-95 transition-all cursor-pointer print:hidden"
               >
                 <Share2 className="w-4 h-4" />

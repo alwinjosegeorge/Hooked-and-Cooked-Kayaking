@@ -103,6 +103,8 @@ export default function GallerySection() {
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter as any)}
+                aria-label={`Filter by ${filter}`}
+                aria-selected={isActive}
                 className={`px-6 py-2.5 rounded-full border transition-all duration-300 cursor-pointer ${
                   isActive
                     ? 'bg-[#07191d] border-[#07191d] text-white font-bold shadow-md'
@@ -173,6 +175,7 @@ export default function GallerySection() {
           >
             <button 
               onClick={() => setSelectedImage(null)}
+              aria-label="Close image modal"
               className="absolute top-6 right-6 text-white hover:text-glacier-cyan p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all cursor-pointer"
             >
               <X size={20} />
