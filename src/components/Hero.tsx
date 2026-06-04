@@ -29,7 +29,7 @@ export default function Hero() {
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover object-[65%_bottom] scale-120 z-0 opacity-95 block md:hidden transform-gpu will-change-transform"
+        className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-95 block md:hidden transform-gpu will-change-transform"
       />
       {/* Desktop-optimized landscape video */}
       <video
