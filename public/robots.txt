@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /control-hub
+Disallow: /boarding-pass
+Disallow: /api/
+
+Sitemap: https://www.visitkadambrayar.com/sitemap.xml
+Host: https://www.visitkadambrayar.com
