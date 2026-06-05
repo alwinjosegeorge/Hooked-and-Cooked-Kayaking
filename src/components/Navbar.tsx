@@ -243,19 +243,7 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
               >
                 <YoutubeIcon />
               </a>
-              <a 
-                href="https://google.com" 
-                target="_blank" 
-                rel="noreferrer" 
-                aria-label="Find us on Google"
-                className={`transition-colors duration-300 p-1.5 rounded-full ${
-                  isDarkTheme 
-                    ? 'text-gray-400 hover:text-glacier-cyan hover:bg-cream/5' 
-                    : 'text-[#091F27] hover:text-[#0D2B35] hover:bg-[#091F27]/5'
-                }`}
-              >
-                <GoogleIcon />
-              </a>
+
             </div>
 
             {isDarkTheme ? (
@@ -354,17 +342,7 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
                   >
                     <YoutubeIcon />
                   </a>
-                  <a 
-                    href="https://google.com" 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    aria-label="Find us on Google"
-                    className={`p-1.5 rounded-full ${
-                      isDarkTheme ? 'text-gray-400 hover:text-glacier-cyan hover:bg-cream/5' : 'text-[#091F27] hover:bg-[#091F27]/5'
-                    }`}
-                  >
-                    <GoogleIcon />
-                  </a>
+
                 </div>
                 {isDarkTheme ? (
                   <a
