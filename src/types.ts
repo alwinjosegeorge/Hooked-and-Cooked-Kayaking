@@ -3,7 +3,7 @@ export interface Booking {
   date: string; // YYYY-MM-DD
   route: string; // 'kadambrayar' | 'vembanad' | 'kadamakudy'
   slot: string; // e.g., '8:00 AM'
-  kayakType: 'single' | 'double';
+  kayakType: 'single' | 'double' | 'mixed' | string;
   guests: number;
   name: string;
   email: string;

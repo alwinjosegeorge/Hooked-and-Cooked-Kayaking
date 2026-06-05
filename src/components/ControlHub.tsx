@@ -47,6 +47,20 @@ interface ControlHubProps {
 const SLOTS = ['6:00 AM', '8:00 AM', '10:00 AM', '1:00 PM', '3:00 PM', '5:00 PM'];
 const CAPACITY = 12;
 
+const getKayakTypeDisplay = (kType: string) => {
+  if (kType === 'single') return 'Single Kayak';
+  if (kType === 'double') return 'Double Kayak';
+  if (typeof kType === 'string' && kType.startsWith('mixed:')) {
+    const parts = kType.split(':');
+    const s = parseInt(parts[1], 10) || 0;
+    const d = parseInt(parts[2], 10) || 0;
+    const sLabel = s === 1 ? '1 Single Kayak' : `${s} Single Kayaks`;
+    const dLabel = d === 1 ? '1 Double Kayak' : `${d} Double Kayaks`;
+    return `Custom Group (${sLabel} + ${dLabel})`;
+  }
+  return kType;
+};
+
 const ROUTES = [
   { id: 'kadambrayar', name: 'Kadambrayar River Expedition' },
   { id: 'vembanad', name: 'Vembanad Backwater Odyssey' },
@@ -146,9 +160,17 @@ export default function ControlHub({
 
   // Calculate pricing in manual booking form when parameters change
   useEffect(() => {
-    const calculatedPrice = bookingForm.kayakType === 'single'
-      ? bookingForm.guests * 450
-      : Math.ceil(bookingForm.guests / 2) * 900;
+    let calculatedPrice = 0;
+    if (bookingForm.kayakType === 'single') {
+      calculatedPrice = bookingForm.guests * 450;
+    } else if (bookingForm.kayakType === 'double') {
+      calculatedPrice = Math.ceil(bookingForm.guests / 2) * 900;
+    } else if (typeof bookingForm.kayakType === 'string' && bookingForm.kayakType.startsWith('mixed:')) {
+      const parts = bookingForm.kayakType.split(':');
+      const s = parseInt(parts[1], 10) || 0;
+      const d = parseInt(parts[2], 10) || 0;
+      calculatedPrice = s * 450 + d * 900;
+    }
     setBookingForm(prev => ({ ...prev, amount: calculatedPrice }));
   }, [bookingForm.kayakType, bookingForm.guests]);
 
@@ -225,6 +247,39 @@ export default function ControlHub({
     .filter(b => b.date.startsWith('2026-06') && b.paymentStatus === 'Paid')
     .reduce((sum, b) => sum + b.amount, 0);
 
+  const getSlotInventory = (dateStr: string, slotTime: string) => {
+    let bookedSingle = 0;
+    let bookedDouble = 0;
+
+    const activeBookings = bookings.filter(
+      b => b.date === dateStr && b.slot === slotTime && b.status !== 'Cancelled'
+    );
+
+    activeBookings.forEach(b => {
+      if (b.kayakType === 'single') {
+        bookedSingle += b.guests;
+      } else if (b.kayakType === 'double') {
+        bookedDouble += Math.ceil(b.guests / 2);
+      } else if (typeof b.kayakType === 'string' && b.kayakType.startsWith('mixed:')) {
+        const parts = b.kayakType.split(':');
+        const s = parseInt(parts[1], 10) || 0;
+        const d = parseInt(parts[2], 10) || 0;
+        bookedSingle += s;
+        bookedDouble += d;
+      }
+    });
+
+    const remainingSingle = Math.max(0, 8 - bookedSingle);
+    const remainingDouble = Math.max(0, 2 - bookedDouble);
+    const remainingGuests = remainingSingle + remainingDouble * 2;
+
+    return {
+      remainingGuests,
+      remainingSingle,
+      remainingDouble,
+    };
+  };
+
   // Derive slots stats for today (returning exact real bookings from database, no simulated offset)
   const getSlotGuestsCount = (slot: string) => {
     return bookings
@@ -285,12 +340,45 @@ export default function ControlHub({
       alert('Please enter a valid phone number with at least 10 digits.');
       return;
     }
+
+    // Validate kayak-specific inventory capacity
+    const { remainingGuests, remainingSingle, remainingDouble } = getSlotInventory(bookingForm.date, bookingForm.slot);
+    let reqGuests = bookingForm.guests;
+    let reqSingle = 0;
+    let reqDouble = 0;
+
+    if (bookingForm.kayakType === 'single') {
+      reqSingle = bookingForm.guests;
+    } else if (bookingForm.kayakType === 'double') {
+      reqDouble = Math.ceil(bookingForm.guests / 2);
+    } else if (typeof bookingForm.kayakType === 'string' && bookingForm.kayakType.startsWith('mixed:')) {
+      const parts = bookingForm.kayakType.split(':');
+      const s = parseInt(parts[1], 10) || 0;
+      const d = parseInt(parts[2], 10) || 0;
+      reqSingle = s;
+      reqDouble = d;
+      reqGuests = s + d * 2;
+    }
+
+    if (reqGuests > remainingGuests) {
+      alert(`Cannot add booking. Exceeds overall slot capacity. (Requested: ${reqGuests} guests, Remaining: ${remainingGuests})`);
+      return;
+    }
+    if (reqSingle > remainingSingle) {
+      alert(`Cannot add booking. Exceeds Single Kayak inventory limit of 8 per slot. (Requested: ${reqSingle}, Remaining: ${remainingSingle})`);
+      return;
+    }
+    if (reqDouble > remainingDouble) {
+      alert(`Cannot add booking. Exceeds Double Kayak inventory limit of 2 per slot. (Requested: ${reqDouble}, Remaining: ${remainingDouble})`);
+      return;
+    }
+
     const data = {
       date: bookingForm.date,
       route: bookingForm.route,
       slot: bookingForm.slot,
       kayakType: bookingForm.kayakType,
-      guests: bookingForm.guests,
+      guests: reqGuests,
       name: bookingForm.name,
       email: bookingForm.email,
       phone: bookingForm.phone,
@@ -597,7 +685,8 @@ export default function ControlHub({
 
     const boardingUrl = `https://visitkadambrayar.com/boarding-pass?id=${b.id}&token=${b.securityToken}&name=${encodeURIComponent(b.name)}&route=${b.route}&slot=${encodeURIComponent(b.slot)}&date=${b.date}&guests=${b.guests}&kayak=${b.kayakType}&amount=${b.amount}`;
 
-    const message = `Hi ${b.name} 👋\n\nYour kayaking adventure has been confirmed.\n\nBooking ID:\n${b.id}\n\nRoute:\n${routeNames[b.route] || b.route}\n\nDate:\n${formattedDate}\n\nTime:\n${b.slot}\n\nGuests:\n${b.guests}\n\nPlease show the QR code at check-in.\n\nOpen Boarding Pass & QR Ticket Link:\n${boardingUrl}\n\nSee you on the water! 🚣`;
+    const kayakDisplay = getKayakTypeDisplay(b.kayakType);
+    const message = `Hi ${b.name} 👋\n\nYour kayaking adventure has been confirmed.\n\nBooking ID:\n${b.id}\n\nRoute:\n${routeNames[b.route] || b.route}\n\nDate:\n${formattedDate}\n\nTime:\n${b.slot}\n\nKayak Platform:\n${kayakDisplay}\n\nGuests:\n${b.guests}\n\nPlease show the QR code at check-in.\n\nOpen Boarding Pass & QR Ticket Link:\n${boardingUrl}\n\nSee you on the water! 🚣`;
 
     let cleaned = b.phone.replace(/\D/g, '');
     if (cleaned.length === 10) {
@@ -674,7 +763,7 @@ export default function ControlHub({
           </div>
           <div className="flex justify-between py-1 border-b border-gray-100/50">
             <span className="text-gray-400 font-medium">Date & Type:</span>
-            <span className="font-extrabold text-gray-800">{selectedBooking.date} ({selectedBooking.kayakType})</span>
+            <span className="font-extrabold text-gray-800">{selectedBooking.date} ({getKayakTypeDisplay(selectedBooking.kayakType)})</span>
           </div>
           <div className="flex justify-between py-1 border-b border-gray-100/50">
             <span className="text-gray-400 font-medium">Passenger Guests:</span>
@@ -765,6 +854,38 @@ export default function ControlHub({
           ) : (
             <button 
               onClick={() => {
+                // Enforce kayak-specific limits before restoring
+                const { remainingGuests, remainingSingle, remainingDouble } = getSlotInventory(selectedBooking.date, selectedBooking.slot);
+                let reqGuests = selectedBooking.guests;
+                let reqSingle = 0;
+                let reqDouble = 0;
+
+                if (selectedBooking.kayakType === 'single') {
+                  reqSingle = selectedBooking.guests;
+                } else if (selectedBooking.kayakType === 'double') {
+                  reqDouble = Math.ceil(selectedBooking.guests / 2);
+                } else if (typeof selectedBooking.kayakType === 'string' && selectedBooking.kayakType.startsWith('mixed:')) {
+                  const parts = selectedBooking.kayakType.split(':');
+                  const s = parseInt(parts[1], 10) || 0;
+                  const d = parseInt(parts[2], 10) || 0;
+                  reqSingle = s;
+                  reqDouble = d;
+                  reqGuests = s + d * 2;
+                }
+
+                if (reqGuests > remainingGuests) {
+                  alert(`Cannot restore booking. Exceeds overall slot capacity. (Requested: ${reqGuests} guests, Remaining: ${remainingGuests})`);
+                  return;
+                }
+                if (reqSingle > remainingSingle) {
+                  alert(`Cannot restore booking. Exceeds Single Kayak inventory limit of 8 per slot. (Requested: ${reqSingle}, Remaining: ${remainingSingle})`);
+                  return;
+                }
+                if (reqDouble > remainingDouble) {
+                  alert(`Cannot restore booking. Exceeds Double Kayak inventory limit of 2 per slot. (Requested: ${reqDouble}, Remaining: ${remainingDouble})`);
+                  return;
+                }
+
                 const updated = { ...selectedBooking, status: 'Confirmed' as const };
                 onUpdateBooking(updated);
               }}
@@ -1154,7 +1275,7 @@ export default function ControlHub({
                                             {b.id}
                                           </span>
                                           <span className="text-[10px] text-gray-500 font-medium">
-                                            ({b.guests} {b.guests === 1 ? 'Guest' : 'Guests'} • {b.kayakType})
+                                            ({b.guests} {b.guests === 1 ? 'Guest' : 'Guests'} • {getKayakTypeDisplay(b.kayakType)})
                                           </span>
                                         </div>
                                         <div className="text-[10px] text-gray-500 font-semibold flex flex-wrap gap-x-3 gap-y-1">
@@ -1413,7 +1534,7 @@ export default function ControlHub({
                                 {getRouteName(b.route)}
                               </div>
                               <div className="text-gray-400 mt-0.5">
-                                {b.slot} • {b.kayakType} • {new Date(b.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                {b.slot} • {getKayakTypeDisplay(b.kayakType)} • {new Date(b.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                               </div>
                             </div>
                             <div className="flex justify-between items-center pt-1 border-t border-gray-50">
@@ -1486,7 +1607,7 @@ export default function ControlHub({
                                     {getRouteName(b.route)}
                                   </span>
                                   <span className="text-[10px] text-gray-500 block mt-0.5 font-semibold">
-                                    {b.slot} • {b.kayakType}
+                                    {b.slot} • {getKayakTypeDisplay(b.kayakType)}
                                   </span>
                                 </td>
                                 <td className="py-4 px-4 text-gray-600 font-medium">
@@ -2352,14 +2473,39 @@ export default function ControlHub({
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Kayak Class *</label>
                   <select 
                     value={bookingForm.kayakType}
-                    onChange={(e) => setBookingForm(prev => ({ ...prev, kayakType: e.target.value as any }))}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setBookingForm(prev => {
+                        let updatedGuests = prev.guests;
+                        if (val.startsWith('mixed:')) {
+                          const parts = val.split(':');
+                          const s = parseInt(parts[1], 10) || 0;
+                          const d = parseInt(parts[2], 10) || 0;
+                          updatedGuests = s + d * 2;
+                        }
+                        return { ...prev, kayakType: val, guests: updatedGuests };
+                      });
+                    }}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs bg-white focus:outline-none"
                   >
                     <option value="single">Single Kayak (₹450/head)</option>
                     <option value="double">Double Kayak (₹900/kayak)</option>
+                    <option value="mixed:1:1">Mixed Preset (1 Single + 1 Double)</option>
+                    <option value="mixed:2:1">Mixed Preset (2 Single + 1 Double)</option>
+                    <option value="mixed:3:1">Mixed Preset (3 Single + 1 Double)</option>
+                    <option value="mixed:2:2">Mixed Preset (2 Single + 2 Double)</option>
                   </select>
                 </div>
               </div>
+
+              {/* Live Availability Status */}
+              {bookingForm.date && bookingForm.slot && (
+                <div className="bg-blue-50/50 border border-blue-100/30 rounded-xl p-3 flex flex-wrap gap-x-6 gap-y-1.5 justify-start text-[10px] font-bold text-gray-500 uppercase tracking-wide">
+                  <span>Seats Left: <span className="text-[#0D2B35] font-extrabold">{getSlotInventory(bookingForm.date, bookingForm.slot).remainingGuests} / 12</span></span>
+                  <span>Single Kayaks Left: <span className="text-[#0D2B35] font-extrabold">{getSlotInventory(bookingForm.date, bookingForm.slot).remainingSingle} / 8</span></span>
+                  <span>Double Kayaks Left: <span className="text-[#0D2B35] font-extrabold">{getSlotInventory(bookingForm.date, bookingForm.slot).remainingDouble} / 2</span></span>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="space-y-1">

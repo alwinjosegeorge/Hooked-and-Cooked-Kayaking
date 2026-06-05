@@ -26,7 +26,31 @@ export default function BoardingPass() {
   // Custom calculated parameter fallbacks
   const kayakType = params.get('kayak') || 'single';
   const rawAmount = params.get('amount');
-  const amount = rawAmount ? parseInt(rawAmount, 10) : (kayakType === 'single' ? guests * 450 : Math.ceil(guests / 2) * 900);
+
+  const getKayakTypeDisplay = (kType: string) => {
+    if (kType === 'single') return 'Single Kayak';
+    if (kType === 'double') return 'Double Kayak';
+    if (typeof kType === 'string' && kType.startsWith('mixed:')) {
+      const parts = kType.split(':');
+      const s = parseInt(parts[1], 10) || 0;
+      const d = parseInt(parts[2], 10) || 0;
+      const sLabel = s === 1 ? '1 Single Kayak' : `${s} Single Kayaks`;
+      const dLabel = d === 1 ? '1 Double Kayak' : `${d} Double Kayaks`;
+      return `Custom Group (${sLabel} + ${dLabel})`;
+    }
+    return kType;
+  };
+
+  let calculatedAmount = guests * 450;
+  if (kayakType === 'double') {
+    calculatedAmount = Math.ceil(guests / 2) * 900;
+  } else if (typeof kayakType === 'string' && kayakType.startsWith('mixed:')) {
+    const parts = kayakType.split(':');
+    const s = parseInt(parts[1], 10) || 0;
+    const d = parseInt(parts[2], 10) || 0;
+    calculatedAmount = s * 450 + d * 900;
+  }
+  const amount = rawAmount ? parseInt(rawAmount, 10) : calculatedAmount;
 
   const routeObj = ROUTES.find(r => r.id === routeId) || ROUTES[0];
 
@@ -279,7 +303,7 @@ export default function BoardingPass() {
               
               <div>
                 <span className="text-[9px] font-bold text-[#8A8996] uppercase tracking-wider block">Kayak Platform</span>
-                <span className="text-xs font-black text-[#0A0915] block mt-0.5 capitalize">{kayakType} Kayak</span>
+                <span className="text-xs font-black text-[#0A0915] block mt-0.5">{getKayakTypeDisplay(kayakType)}</span>
               </div>
               
               <div>

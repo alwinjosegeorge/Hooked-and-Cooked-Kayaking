@@ -42,6 +42,20 @@ const bgBeige = '#F4EBDB';
 
 const CAPACITY = 12;
 
+const getKayakTypeDisplay = (kType: string) => {
+  if (kType === 'single') return 'Single Kayak';
+  if (kType === 'double') return 'Double Kayak';
+  if (typeof kType === 'string' && kType.startsWith('mixed:')) {
+    const parts = kType.split(':');
+    const s = parseInt(parts[1], 10) || 0;
+    const d = parseInt(parts[2], 10) || 0;
+    const sLabel = s === 1 ? '1 Single Kayak' : `${s} Single Kayaks`;
+    const dLabel = d === 1 ? '1 Double Kayak' : `${d} Double Kayaks`;
+    return `Custom Group (${sLabel} + ${dLabel})`;
+  }
+  return kType;
+};
+
 interface BookingSectionProps {
   bookings: Booking[];
   blockedDates: string[];
@@ -60,6 +74,8 @@ export default function BookingSection({
   const [createdBooking, setCreatedBooking] = useState<Booking | null>(null);
   const [paying, setPaying] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [mixedSingleCount, setMixedSingleCount] = useState(1);
+  const [mixedDoubleCount, setMixedDoubleCount] = useState(1);
 
   // Dynamically load the real Razorpay Checkout script from official CDN
   const loadRazorpayScript = (): Promise<boolean> => {
@@ -91,7 +107,7 @@ export default function BookingSection({
       amount: totalPrice * 100, // Amount in paise (1 INR = 100 Paise)
       currency: 'INR',
       name: 'Hooked & Cooked',
-      description: `${selectedRouteObj?.name || 'Kayak Expedition'} - ${form.guests} Guests`,
+      description: `${selectedRouteObj?.name || 'Kayak Expedition'} - ${getKayakTypeDisplay(form.kayakType)} - ${form.guests} Guests`,
       image: '/logo.webp',
       handler: async function () {
         // Real checkout payment success callback
@@ -166,7 +182,7 @@ export default function BookingSection({
     date: '', // format YYYY-MM-DD
     route: 'kadambrayar',
     slot: '',
-    kayakType: 'single' as 'single' | 'double',
+    kayakType: 'single' as string,
     guests: 2,
     name: '',
     email: '',
@@ -186,22 +202,126 @@ export default function BookingSection({
     return Math.min(hash, CAPACITY);
   };
 
-  const getSlotAvailability = (dateStr: string, slotTime: string) => {
-    // Sum up actual real bookings for this date and slot across all routes
-    const realBookingsCount = bookings
-      .filter(b => b.date === dateStr && b.slot === slotTime && b.status !== 'Cancelled')
-      .reduce((sum, b) => sum + b.guests, 0);
+  const getSlotInventory = (dateStr: string, slotTime: string) => {
+    let bookedSingle = 0;
+    let bookedDouble = 0;
 
-    const booked = realBookingsCount;
-    const remaining = Math.max(0, CAPACITY - booked);
-    return { booked, remaining };
+    const activeBookings = bookings.filter(
+      b => b.date === dateStr && b.slot === slotTime && b.status !== 'Cancelled'
+    );
+
+    activeBookings.forEach(b => {
+      if (b.kayakType === 'single') {
+        bookedSingle += b.guests;
+      } else if (b.kayakType === 'double') {
+        bookedDouble += Math.ceil(b.guests / 2);
+      } else if (typeof b.kayakType === 'string' && b.kayakType.startsWith('mixed:')) {
+        const parts = b.kayakType.split(':');
+        const s = parseInt(parts[1], 10) || 0;
+        const d = parseInt(parts[2], 10) || 0;
+        bookedSingle += s;
+        bookedDouble += d;
+      }
+    });
+
+    const remainingSingle = Math.max(0, 8 - bookedSingle);
+    const remainingDouble = Math.max(0, 2 - bookedDouble);
+    const remainingGuests = remainingSingle + remainingDouble * 2;
+
+    return {
+      remainingGuests,
+      remainingSingle,
+      remainingDouble,
+    };
   };
 
-  // Price Calculation: Single ₹450 / Double ₹900
-  const totalPrice =
-    form.kayakType === 'single'
-      ? form.guests * 450
-      : Math.ceil(form.guests / 2) * 900;
+  const getSlotAvailability = (dateStr: string, slotTime: string) => {
+    const { remainingGuests } = getSlotInventory(dateStr, slotTime);
+    return { booked: 12 - remainingGuests, remaining: remainingGuests };
+  };
+
+  const getMixedCounts = (kType: string) => {
+    if (typeof kType === 'string' && kType.startsWith('mixed:')) {
+      const parts = kType.split(':');
+      const s = parseInt(parts[1], 10) || 0;
+      const d = parseInt(parts[2], 10) || 0;
+      return { s, d };
+    }
+    return { s: 0, d: 0 };
+  };
+
+  const updateMixedCounts = (s: number, d: number) => {
+    const totalCapacity = s + d * 2;
+    const { remainingGuests, remainingSingle, remainingDouble } = getSlotInventory(form.date, form.slot);
+    
+    // Check if within bounds
+    if (s > remainingSingle || d > remainingDouble || totalCapacity > remainingGuests) {
+      return;
+    }
+    setMixedSingleCount(s);
+    setMixedDoubleCount(d);
+    setForm(p => ({
+      ...p,
+      kayakType: `mixed:${s}:${d}`,
+      guests: totalCapacity
+    }));
+  };
+
+  const handleSelectMixedPlatform = () => {
+    const { remainingGuests, remainingSingle, remainingDouble } = getSlotInventory(form.date, form.slot);
+    let s = 1;
+    let d = 1;
+
+    // Adjust initial values if they exceed slot availability
+    if (s > remainingSingle) s = remainingSingle;
+    if (d > remainingDouble) d = remainingDouble;
+
+    // Check if total fits remaining capacity
+    if (s + d * 2 > remainingGuests) {
+      if (remainingGuests >= 2) {
+        s = 0;
+        d = 1;
+      } else if (remainingGuests >= 1) {
+        s = 1;
+        d = 0;
+      } else {
+        s = 0;
+        d = 0;
+      }
+    }
+
+    setMixedSingleCount(s);
+    setMixedDoubleCount(d);
+    setForm(p => ({
+      ...p,
+      kayakType: `mixed:${s}:${d}`,
+      guests: s + d * 2
+    }));
+    setSubStep(4);
+  };
+
+  const handleMixedSingleChange = (newSingle: number) => {
+    if (newSingle < 0) return;
+    if (newSingle === 0 && mixedDoubleCount === 0) return;
+    updateMixedCounts(newSingle, mixedDoubleCount);
+  };
+
+  const handleMixedDoubleChange = (newDouble: number) => {
+    if (newDouble < 0) return;
+    if (mixedSingleCount === 0 && newDouble === 0) return;
+    updateMixedCounts(mixedSingleCount, newDouble);
+  };
+
+  // Price Calculation: Single ₹450 / Double ₹900 / Mixed derived
+  let totalPrice = 0;
+  if (form.kayakType === 'single') {
+    totalPrice = form.guests * 450;
+  } else if (form.kayakType === 'double') {
+    totalPrice = Math.ceil(form.guests / 2) * 900;
+  } else if (typeof form.kayakType === 'string' && form.kayakType.startsWith('mixed:')) {
+    const { s, d } = getMixedCounts(form.kayakType);
+    totalPrice = s * 450 + d * 900;
+  }
 
   // Calendar logic helpers
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -350,6 +470,37 @@ export default function BookingSection({
       setSubStep(2);
       return;
     }
+    
+    // Enforce kayak-specific limits
+    const { remainingGuests, remainingSingle, remainingDouble } = getSlotInventory(form.date, form.slot);
+    let reqGuests = form.guests;
+    let reqSingle = 0;
+    let reqDouble = 0;
+
+    if (form.kayakType === 'single') {
+      reqSingle = form.guests;
+    } else if (form.kayakType === 'double') {
+      reqDouble = Math.ceil(form.guests / 2);
+    } else if (typeof form.kayakType === 'string' && form.kayakType.startsWith('mixed:')) {
+      const { s, d } = getMixedCounts(form.kayakType);
+      reqSingle = s;
+      reqDouble = d;
+      reqGuests = s + d * 2;
+    }
+
+    if (reqGuests > remainingGuests) {
+      alert(`Cannot proceed. Exceeds overall slot capacity. (Requested: ${reqGuests} guests, Remaining: ${remainingGuests})`);
+      return;
+    }
+    if (reqSingle > remainingSingle) {
+      alert(`Cannot proceed. Exceeds Single Kayak inventory limit of 8. (Requested: ${reqSingle}, Remaining: ${remainingSingle})`);
+      return;
+    }
+    if (reqDouble > remainingDouble) {
+      alert(`Cannot proceed. Exceeds Double Kayak inventory limit of 2. (Requested: ${reqDouble}, Remaining: ${remainingDouble})`);
+      return;
+    }
+
     setStep(2);
   };
 
@@ -360,6 +511,37 @@ export default function BookingSection({
       alert('Please enter a valid phone number with at least 10 digits.');
       return;
     }
+
+    // Validate kayak-specific limits again on submission
+    const { remainingGuests, remainingSingle, remainingDouble } = getSlotInventory(form.date, form.slot);
+    let reqGuests = form.guests;
+    let reqSingle = 0;
+    let reqDouble = 0;
+
+    if (form.kayakType === 'single') {
+      reqSingle = form.guests;
+    } else if (form.kayakType === 'double') {
+      reqDouble = Math.ceil(form.guests / 2);
+    } else if (typeof form.kayakType === 'string' && form.kayakType.startsWith('mixed:')) {
+      const { s, d } = getMixedCounts(form.kayakType);
+      reqSingle = s;
+      reqDouble = d;
+      reqGuests = s + d * 2;
+    }
+
+    if (reqGuests > remainingGuests) {
+      alert(`Cannot proceed. Exceeds overall slot capacity. (Requested: ${reqGuests} guests, Remaining: ${remainingGuests})`);
+      return;
+    }
+    if (reqSingle > remainingSingle) {
+      alert(`Cannot proceed. Exceeds Single Kayak inventory limit of 8. (Requested: ${reqSingle}, Remaining: ${remainingSingle})`);
+      return;
+    }
+    if (reqDouble > remainingDouble) {
+      alert(`Cannot proceed. Exceeds Double Kayak inventory limit of 2. (Requested: ${reqDouble}, Remaining: ${remainingDouble})`);
+      return;
+    }
+
     handleRazorpayPayment();
   };
 
@@ -368,6 +550,8 @@ export default function BookingSection({
     setCreatedBooking(null);
     setStep(1);
     setSubStep(1);
+    setMixedSingleCount(1);
+    setMixedDoubleCount(1);
     setForm({
       date: '',
       route: 'kadambrayar',
@@ -710,7 +894,7 @@ export default function BookingSection({
                           
                           <div>
                             <span className="text-[8.5px] font-bold text-[#8A8996] uppercase tracking-wider block">Kayak Platform</span>
-                            <span className="text-xs font-black text-[#0A0915] block mt-0.5 capitalize">{createdBooking.kayakType} Kayak</span>
+                            <span className="text-xs font-black text-[#0A0915] block mt-0.5">{getKayakTypeDisplay(createdBooking.kayakType)}</span>
                           </div>
                           
                           <div>
@@ -958,7 +1142,7 @@ export default function BookingSection({
                   </AnimatePresence>
 
                   {/* SUBSTEP 3: KAYAK PLATFORM */}
-                  {accordionHeader(3, 'Choose Kayak Platform', form.kayakType === 'single' ? 'Single Kayak' : 'Double Kayak', subStep === 3, !!form.slot)}
+                  {accordionHeader(3, 'Choose Kayak Platform', getKayakTypeDisplay(form.kayakType), subStep === 3, !!form.slot)}
                   <AnimatePresence>
                     {subStep === 3 && (
                       <motion.div
@@ -967,39 +1151,78 @@ export default function BookingSection({
                         style={{ overflow: 'hidden' }}
                         className="px-6 py-6 border-b border-[#F0EFEA]"
                       >
-                        <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto">
                           {[
                             { type: 'single' as const, label: 'Single Kayak', sub: '₹450 / Person', icon: '/single_kayak.webp' },
                             { type: 'double' as const, label: 'Double Kayak', sub: '₹900 / Hull', icon: '/double_kayak.webp' },
+                            { type: 'mixed' as const, label: 'Custom Group', sub: 'Mix Single & Double', icon: '/Custom group.png' },
                           ].map(item => {
-                            const isSelected = form.kayakType === item.type;
+                            const isSelected = item.type === 'mixed'
+                              ? form.kayakType.startsWith('mixed:')
+                              : form.kayakType === item.type;
+
+                            const { remainingGuests, remainingSingle, remainingDouble } = getSlotInventory(form.date, form.slot);
+
+                            let isDisabled = false;
+                            let subText = item.sub;
+
+                            if (item.type === 'single') {
+                              if (remainingSingle <= 0 || remainingGuests <= 0) {
+                                isDisabled = true;
+                                subText = 'Sold Out';
+                              } else {
+                                subText = `${item.sub} (${remainingSingle} Left)`;
+                              }
+                            } else if (item.type === 'double') {
+                              if (remainingDouble <= 0 || remainingGuests < 2) {
+                                isDisabled = true;
+                                subText = remainingGuests < 2 && remainingDouble > 0 ? 'Needs 2 Seats' : 'Sold Out';
+                              } else {
+                                subText = `${item.sub} (${remainingDouble} Left)`;
+                              }
+                            } else if (item.type === 'mixed') {
+                              if (remainingGuests <= 0 || (remainingSingle === 0 && remainingDouble === 0)) {
+                                isDisabled = true;
+                                subText = 'Sold Out';
+                              } else {
+                                subText = `${item.sub} (S:${remainingSingle} / D:${remainingDouble})`;
+                              }
+                            }
+
                             return (
                               <button
                                 key={item.type}
                                 type="button"
+                                disabled={isDisabled}
                                 onClick={() => {
-                                  setForm(p => ({ ...p, kayakType: item.type }));
-                                  setSubStep(4); // Auto advance to guests count
+                                  if (item.type === 'mixed') {
+                                    handleSelectMixedPlatform();
+                                  } else {
+                                    const initialGuests = item.type === 'single' ? Math.min(2, remainingGuests, remainingSingle) : 2;
+                                    setForm(p => ({ ...p, kayakType: item.type, guests: initialGuests }));
+                                    setSubStep(4);
+                                  }
                                 }}
                                 style={{
                                   padding: '14px 12px',
                                   border: isSelected ? `2px solid ${ink}` : '1px solid #EAE6DF',
                                   borderRadius: '16px',
-                                  background: '#FFFFFF',
-                                  color: ink,
+                                  background: isDisabled ? '#F4F3EE' : '#FFFFFF',
+                                  color: isDisabled ? '#C2BFB6' : ink,
                                   display: 'flex',
                                   flexDirection: 'column',
                                   alignItems: 'center',
                                   gap: 4,
-                                  cursor: 'pointer',
+                                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                  opacity: isDisabled ? 0.6 : 1,
                                   transition: 'all 0.2s',
-                                  transform: isSelected ? 'scale(1.02)' : 'none',
-                                  boxShadow: isSelected ? '0 4px 15px rgba(0,0,0,0.05)' : 'none',
+                                  transform: isSelected && !isDisabled ? 'scale(1.02)' : 'none',
+                                  boxShadow: isSelected && !isDisabled ? '0 4px 15px rgba(0,0,0,0.05)' : 'none',
                                 }}
                               >
                                 <img src={item.icon} alt={item.label} className="w-12 h-12 object-contain mb-1" />
                                 <span className="text-[12.5px] font-black uppercase tracking-wide leading-none">{item.label}</span>
-                                <span className="text-[10px] text-gray-500 font-medium mt-0.5">{item.sub}</span>
+                                <span className="text-[10px] text-gray-500 font-medium mt-0.5">{subText}</span>
                               </button>
                             );
                           })}
@@ -1018,42 +1241,189 @@ export default function BookingSection({
                         style={{ overflow: 'hidden' }}
                         className="px-6 py-6 border-b border-[#F0EFEA]"
                       >
-                        <div className="flex flex-col items-center gap-3">
-                          <div style={{
-                            display: 'flex', alignItems: 'center',
-                            justifyContent: 'space-between',
-                            border: '1px solid #EAE6DF', borderRadius: '14px',
-                            padding: '13px 18px', background: '#FFFFFF',
-                            width: '100%', maxWidth: '240px',
-                          }}>
-                             <button type="button"
-                              onClick={() => setForm(p => ({ ...p, guests: Math.max(1, p.guests - 1) }))}
-                              aria-label="Decrease guest count"
-                              style={{ background: 'none', border: 'none', fontSize: 22, color: gold, cursor: 'pointer', fontWeight: 600, lineHeight: 1, padding: 0 }}
-                            >−</button>
-                            <span style={{ fontSize: '14px', fontWeight: 700, color: ink }}>
-                              {form.guests} Guests
-                            </span>
-                            <button type="button"
-                              onClick={() => {
-                                // Dynamic safety check on guest count relative to remaining seats
-                                const { remaining } = getSlotAvailability(form.date, form.slot);
-                                if (form.guests < remaining) {
-                                  setForm(p => ({ ...p, guests: p.guests + 1 }));
-                                } else {
-                                  alert(`Only ${remaining} seats left for this departure time slot.`);
-                                }
-                              }}
-                              aria-label="Increase guest count"
-                              style={{ background: 'none', border: 'none', fontSize: 22, color: gold, cursor: 'pointer', fontWeight: 600, lineHeight: 1, padding: 0 }}
-                            >+</button>
+                        {form.kayakType.startsWith('mixed:') ? (
+                          <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto">
+                            {/* Single Kayaks Row */}
+                            <div className="flex items-center justify-between w-full border-b border-gray-100 pb-3">
+                              <div className="flex flex-col text-left">
+                                <span className="text-[13px] font-extrabold text-ink uppercase tracking-wide">🚣 Single Kayaks</span>
+                                <span className="text-[10.5px] text-gray-500 font-medium">₹450 / Kayak (1 Person)</span>
+                              </div>
+                              <div style={{
+                                display: 'flex', alignItems: 'center',
+                                justifyContent: 'space-between',
+                                border: '1px solid #EAE6DF', borderRadius: '12px',
+                                padding: '8px 14px', background: '#FFFFFF',
+                                width: '120px',
+                              }}>
+                                <button type="button"
+                                  disabled={mixedSingleCount <= 0}
+                                  onClick={() => handleMixedSingleChange(mixedSingleCount - 1)}
+                                  aria-label="Decrease single kayak count"
+                                  style={{ background: 'none', border: 'none', fontSize: 18, color: mixedSingleCount <= 0 ? '#C2BFB6' : gold, cursor: mixedSingleCount <= 0 ? 'not-allowed' : 'pointer', fontWeight: 600, padding: 0 }}
+                                >−</button>
+                                <span style={{ fontSize: '12px', fontWeight: 700, color: ink }}>
+                                  {mixedSingleCount}
+                                </span>
+                                <button type="button"
+                                  disabled={
+                                    (() => {
+                                      const { remainingGuests, remainingSingle } = getSlotInventory(form.date, form.slot);
+                                      const nextGuests = (mixedSingleCount + 1) + mixedDoubleCount * 2;
+                                      return nextGuests > remainingGuests || (mixedSingleCount + 1) > remainingSingle;
+                                    })()
+                                  }
+                                  onClick={() => handleMixedSingleChange(mixedSingleCount + 1)}
+                                  aria-label="Increase single kayak count"
+                                  style={{ background: 'none', border: 'none', fontSize: 18, color: gold, cursor: 'pointer', fontWeight: 600, padding: 0 }}
+                                >+</button>
+                              </div>
+                            </div>
+
+                            {/* Double Kayaks Row */}
+                            <div className="flex items-center justify-between w-full border-b border-gray-100 pb-3">
+                              <div className="flex flex-col text-left">
+                                <span className="text-[13px] font-extrabold text-ink uppercase tracking-wide">🚣🚣 Double Kayaks</span>
+                                <span className="text-[10.5px] text-gray-500 font-medium">₹900 / Kayak (2 People)</span>
+                              </div>
+                              <div style={{
+                                display: 'flex', alignItems: 'center',
+                                justifyContent: 'space-between',
+                                border: '1px solid #EAE6DF', borderRadius: '12px',
+                                padding: '8px 14px', background: '#FFFFFF',
+                                width: '120px',
+                              }}>
+                                <button type="button"
+                                  disabled={mixedDoubleCount <= 0}
+                                  onClick={() => handleMixedDoubleChange(mixedDoubleCount - 1)}
+                                  aria-label="Decrease double kayak count"
+                                  style={{ background: 'none', border: 'none', fontSize: 18, color: mixedDoubleCount <= 0 ? '#C2BFB6' : gold, cursor: mixedDoubleCount <= 0 ? 'not-allowed' : 'pointer', fontWeight: 600, padding: 0 }}
+                                >−</button>
+                                <span style={{ fontSize: '12px', fontWeight: 700, color: ink }}>
+                                  {mixedDoubleCount}
+                                </span>
+                                <button type="button"
+                                  disabled={
+                                    (() => {
+                                      const { remainingGuests, remainingDouble } = getSlotInventory(form.date, form.slot);
+                                      const nextGuests = mixedSingleCount + (mixedDoubleCount + 1) * 2;
+                                      return nextGuests > remainingGuests || (mixedDoubleCount + 1) > remainingDouble;
+                                    })()
+                                  }
+                                  onClick={() => handleMixedDoubleChange(mixedDoubleCount + 1)}
+                                  aria-label="Increase double kayak count"
+                                  style={{ background: 'none', border: 'none', fontSize: 18, color: gold, cursor: 'pointer', fontWeight: 600, padding: 0 }}
+                                >+</button>
+                              </div>
+                            </div>
+
+                            {/* Dynamic Summary Card */}
+                            <div className="w-full bg-[#FAF9F6] p-4 rounded-2xl border border-[#EAE6DF] space-y-2 text-left font-sans shadow-inner">
+                              <span className="text-[9.5px] font-black uppercase text-gray-400 block tracking-wider">Booking Breakdown</span>
+                              <div className="flex flex-col gap-1.5 mt-2">
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-gray-500 font-medium">Single Kayaks ({mixedSingleCount}):</span>
+                                  <span className="font-extrabold text-[#0D0D0D]">₹{mixedSingleCount * 450}</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-gray-500 font-medium">Double Kayaks ({mixedDoubleCount}):</span>
+                                  <span className="font-extrabold text-[#0D0D0D]">₹{mixedDoubleCount * 900}</span>
+                                </div>
+                                <div className="border-t border-dashed border-gray-200 my-1"></div>
+                                <div className="flex justify-between text-[11px] font-extrabold text-[#0D0D0D]">
+                                  <span>Total Capacity:</span>
+                                  <span>{form.guests} Guests</span>
+                                </div>
+                                <div className="flex justify-between text-[11px] font-extrabold text-[#FE5B63]">
+                                  <span>Total Fare:</span>
+                                  <span>₹{totalPrice}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Real-time Inventory Status */}
+                            {form.slot && (
+                              <div className="w-full text-center mt-1">
+                                <div className="flex justify-between w-full text-[9px] font-bold text-gray-400 uppercase tracking-wide px-2">
+                                  <span>Single Left: {getSlotInventory(form.date, form.slot).remainingSingle} / 8</span>
+                                  <span>Double Left: {getSlotInventory(form.date, form.slot).remainingDouble} / 2</span>
+                                </div>
+                                <div className="text-[10px] font-extrabold text-coral uppercase tracking-wide mt-1.5">
+                                  * Overall Seats Left: {getSlotInventory(form.date, form.slot).remainingGuests} / 12
+                                </div>
+                              </div>
+                            )}
                           </div>
-                          {form.slot && (
-                            <span className="text-[10.5px] font-bold text-coral uppercase tracking-wide">
-                              * Only {getSlotAvailability(form.date, form.slot).remaining} Seats Left for this slot
-                            </span>
-                          )}
-                        </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-3">
+                            <div style={{
+                              display: 'flex', alignItems: 'center',
+                              justifyContent: 'space-between',
+                              border: '1px solid #EAE6DF', borderRadius: '14px',
+                              padding: '13px 18px', background: '#FFFFFF',
+                              width: '100%', maxWidth: '240px',
+                            }}>
+                              <button type="button"
+                                onClick={() => setForm(p => ({ ...p, guests: Math.max(1, p.guests - 1) }))}
+                                aria-label="Decrease guest count"
+                                style={{ background: 'none', border: 'none', fontSize: 22, color: gold, cursor: 'pointer', fontWeight: 600, lineHeight: 1, padding: 0 }}
+                              >−</button>
+                              <span style={{ fontSize: '14px', fontWeight: 700, color: ink }}>
+                                {form.guests} Guests
+                              </span>
+                              <button type="button"
+                                disabled={
+                                  (() => {
+                                    const { remainingGuests, remainingSingle, remainingDouble } = getSlotInventory(form.date, form.slot);
+                                    if (form.kayakType === 'single') {
+                                      return form.guests >= Math.min(remainingGuests, remainingSingle);
+                                    } else {
+                                      const nextGuests = form.guests + 1;
+                                      const reqDouble = Math.ceil(nextGuests / 2);
+                                      return nextGuests > remainingGuests || reqDouble > remainingDouble;
+                                    }
+                                  })()
+                                }
+                                onClick={() => {
+                                  const { remainingGuests, remainingSingle, remainingDouble } = getSlotInventory(form.date, form.slot);
+                                  if (form.kayakType === 'single') {
+                                    const limit = Math.min(remainingGuests, remainingSingle);
+                                    if (form.guests < limit) {
+                                      setForm(p => ({ ...p, guests: p.guests + 1 }));
+                                    } else {
+                                      alert(`Single Kayak inventory limit (${remainingSingle} remaining) or slot capacity reached.`);
+                                    }
+                                  } else {
+                                    const nextGuests = form.guests + 1;
+                                    const reqDouble = Math.ceil(nextGuests / 2);
+                                    if (nextGuests <= remainingGuests && reqDouble <= remainingDouble) {
+                                      setForm(p => ({ ...p, guests: nextGuests }));
+                                    } else {
+                                      alert(`Double Kayak inventory limit (${remainingDouble} remaining) or slot capacity reached.`);
+                                    }
+                                  }
+                                }}
+                                aria-label="Increase guest count"
+                                style={{ background: 'none', border: 'none', fontSize: 22, color: gold, cursor: 'pointer', fontWeight: 600, lineHeight: 1, padding: 0 }}
+                              >+</button>
+                            </div>
+                            
+                            {/* Real-time Inventory Status */}
+                            {form.slot && (
+                              <div className="flex flex-col gap-1 items-center mt-1 text-center">
+                                <span className="text-[9.5px] font-bold text-gray-400 uppercase tracking-wide">
+                                  {form.kayakType === 'single'
+                                    ? `Single Kayaks Left: ${getSlotInventory(form.date, form.slot).remainingSingle} / 8`
+                                    : `Double Kayaks Left: ${getSlotInventory(form.date, form.slot).remainingDouble} / 2`
+                                  }
+                                </span>
+                                <span className="text-[10px] font-extrabold text-coral uppercase tracking-wide">
+                                  * Overall Seats Left: {getSlotInventory(form.date, form.slot).remainingGuests} / 12
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -1158,7 +1528,14 @@ export default function BookingSection({
                       { label: '📅 Date',    value: formatDateLabel(form.date) },
                       { label: '📍 Route',   value: selectedRouteObj ? selectedRouteObj.name : '—' },
                       { label: '🕒 Time',    value: form.slot || '—' },
-                      { label: '🚣 Kayak',   value: form.kayakType === 'single' ? 'Single Kayak (₹450)' : 'Double Kayak (₹900)' },
+                      {
+                        label: '🚣 Kayak',
+                        value: form.kayakType === 'single'
+                          ? 'Single Kayak (₹450)'
+                          : form.kayakType === 'double'
+                            ? 'Double Kayak (₹900)'
+                            : getKayakTypeDisplay(form.kayakType)
+                      },
                       { label: '👥 Guests',  value: `${form.guests} People` },
                     ].map((row, i) => (
                       <div key={i} style={{
