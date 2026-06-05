@@ -120,6 +120,7 @@ export const diningSchema: Schema = {
   acceptsReservations: true,
   address: {
     "@type": "PostalAddress",
+    streetAddress: siteConfig.address.street,
     addressLocality: siteConfig.address.locality,
     addressRegion: siteConfig.address.region,
     postalCode: siteConfig.address.postalCode,

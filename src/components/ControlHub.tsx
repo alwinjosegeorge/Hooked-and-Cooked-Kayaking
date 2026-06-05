@@ -196,11 +196,19 @@ export default function ControlHub({
     }
   }, [selectedBookingId, selectedBooking]);
 
-  // Operational Date Setup
-  const todayStr = '2026-06-04'; // Dynamic date matching simulated bookings baseline
+  // Operational Date Setup - default to current local date in YYYY-MM-DD
+  const getLocalDateStr = () => {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+  const [selectedOpsDate, setSelectedOpsDate] = useState(getLocalDateStr());
+  const [expandedSlot, setExpandedSlot] = useState<string | null>(null);
 
   // 1. Dashboard calculations
-  const todayBookings = bookings.filter(b => b.date === todayStr && b.status !== 'Cancelled');
+  const todayBookings = bookings.filter(b => b.date === selectedOpsDate && b.status !== 'Cancelled');
   
   // Total Revenue calculation
   const totalRevenue = bookings
@@ -209,7 +217,7 @@ export default function ControlHub({
 
   // Today's revenue calculation
   const todayRevenue = bookings
-    .filter(b => b.date === todayStr && b.paymentStatus === 'Paid')
+    .filter(b => b.date === selectedOpsDate && b.paymentStatus === 'Paid')
     .reduce((sum, b) => sum + b.amount, 0);
 
   // Month revenue calculation (For June 2026)
@@ -217,21 +225,11 @@ export default function ControlHub({
     .filter(b => b.date.startsWith('2026-06') && b.paymentStatus === 'Paid')
     .reduce((sum, b) => sum + b.amount, 0);
 
-  // Derive slots stats for today
+  // Derive slots stats for today (returning exact real bookings from database, no simulated offset)
   const getSlotGuestsCount = (slot: string) => {
-    // 1. Simulated default occupancy
-    const [, monthStr, dayStr] = todayStr.split('-');
-    const day = parseInt(dayStr, 10) || 4;
-    const month = parseInt(monthStr, 10) || 6;
-    const hash = (day * 3 + month * 7 + slot.length * 11) % 13;
-    const baseOccupancy = Math.min(hash, CAPACITY);
-
-    // 2. Real bookings for today
-    const realBookingsCount = bookings
-      .filter(b => b.date === todayStr && b.slot === slot && b.status !== 'Cancelled')
+    return bookings
+      .filter(b => b.date === selectedOpsDate && b.slot === slot && b.status !== 'Cancelled')
       .reduce((sum, b) => sum + b.guests, 0);
-
-    return Math.min(CAPACITY, baseOccupancy + realBookingsCount);
   };
 
   // Customer Map derivation
@@ -1021,10 +1019,21 @@ export default function ControlHub({
                 
                 {/* Operations Load column */}
                 <div className="xl:col-span-2 bg-white rounded-3xl p-8 border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] space-y-6">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                      <h3 className="text-lg font-black text-gray-900">Today's Operations Panel</h3>
-                      <p className="text-xs text-gray-400 font-semibold mt-0.5">Schedule occupancy for June 4, 2026</p>
+                      <h3 className="text-lg font-black text-gray-900 font-sans">Operations Panel</h3>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Select Date:</span>
+                        <input 
+                          type="date" 
+                          value={selectedOpsDate}
+                          onChange={(e) => {
+                            setSelectedOpsDate(e.target.value);
+                            setExpandedSlot(null); // Reset expanded slot on date change
+                          }}
+                          className="text-[11px] font-extrabold text-[#0D2B35] bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#0D2B35]"
+                        />
+                      </div>
                     </div>
                     
                     <button 
@@ -1032,7 +1041,7 @@ export default function ControlHub({
                         setActiveTab('scanner');
                         handleStartCamera();
                       }}
-                      className="flex items-center gap-2 bg-[#0D2B35] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#0D2B35]/90 transition"
+                      className="flex items-center gap-2 bg-[#0D2B35] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#0D2B35]/90 transition cursor-pointer"
                     >
                       <Camera className="w-4 h-4" />
                       <span>Start QR Boarding Feed</span>
@@ -1046,8 +1055,16 @@ export default function ControlHub({
                       const isFull = occupancy >= CAPACITY;
                       const percent = (occupancy / CAPACITY) * 100;
                       
+                      const slotBookings = bookings.filter(
+                        b => b.date === selectedOpsDate && b.slot === time && b.status !== 'Cancelled'
+                      );
+
                       return (
-                        <div key={time} className="p-5 rounded-2xl bg-[#E8E3D8]/60 border border-gray-200/40 hover:border-gray-200 transition">
+                        <div 
+                          key={time} 
+                          onClick={() => setExpandedSlot(expandedSlot === time ? null : time)}
+                          className="p-5 rounded-2xl bg-[#E8E3D8]/60 border border-gray-200/40 hover:border-gray-300 transition cursor-pointer hover:shadow-sm select-none"
+                        >
                           <div className="flex justify-between items-center mb-3">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-lg bg-[#0D2B35]/10 flex items-center justify-center text-[#0D2B35]">
@@ -1099,6 +1116,82 @@ export default function ControlHub({
                               </span>
                             </div>
                           </div>
+
+                          {/* Collapsible bookings details inside the slot card */}
+                          {expandedSlot === time && (
+                            <div 
+                              className="mt-4 pt-4 border-t border-[#0D2B35]/10 space-y-3"
+                              onClick={(e) => e.stopPropagation()} // Stop click inside content from toggling accordion
+                            >
+                              <div className="text-[10px] font-extrabold text-[#0D2B35]/60 uppercase tracking-wider mb-2">
+                                Booked Passengers ({slotBookings.length} bookings)
+                              </div>
+                              {slotBookings.length === 0 ? (
+                                <div className="text-xs text-gray-400 py-4 text-center bg-white/40 rounded-xl border border-dashed border-gray-200">
+                                  No active bookings registered for {time}.
+                                </div>
+                              ) : (
+                                <div className="space-y-2 select-text">
+                                  {slotBookings.map((b) => (
+                                    <div 
+                                      key={b.id} 
+                                      className="bg-white rounded-xl p-3 border border-gray-200 shadow-[0_2px_10px_rgba(0,0,0,0.01)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+                                    >
+                                      <div className="space-y-1">
+                                        <div className="flex items-center flex-wrap gap-2">
+                                          <span className="font-extrabold text-xs text-gray-900">{b.name}</span>
+                                          <span className="text-[9px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
+                                            {b.id}
+                                          </span>
+                                          <span className="text-[10px] text-gray-500 font-medium">
+                                            ({b.guests} {b.guests === 1 ? 'Guest' : 'Guests'} • {b.kayakType})
+                                          </span>
+                                        </div>
+                                        <div className="text-[10px] text-gray-500 font-semibold flex flex-wrap gap-x-3 gap-y-1">
+                                          <span>📞 {b.phone}</span>
+                                          <span>📍 {ROUTES.find(r => r.id === b.route)?.name || b.route}</span>
+                                        </div>
+                                      </div>
+                                      
+                                      <div className="flex items-center gap-2 self-stretch sm:self-auto justify-between sm:justify-start">
+                                        <div className="flex gap-1.5">
+                                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                            b.status === 'Checked In' 
+                                              ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                                              : 'bg-amber-50 text-amber-600 border border-amber-100'
+                                          }`}>
+                                            {b.status}
+                                          </span>
+                                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                            b.paymentStatus === 'Paid' 
+                                              ? 'bg-blue-50 text-blue-600 border border-blue-100' 
+                                              : 'bg-rose-50 text-rose-600 border border-rose-100'
+                                          }`}>
+                                            {b.paymentStatus}
+                                          </span>
+                                        </div>
+
+                                        {b.status !== 'Checked In' && b.status !== 'Cancelled' && (
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              const confirmCheckIn = window.confirm(`Check in ${b.name} (${b.guests} guests) for the ${time} slot?`);
+                                              if (confirmCheckIn) {
+                                                onConfirmCheckIn(b.id, undefined, true);
+                                              }
+                                            }}
+                                            className="bg-emerald-600 hover:bg-emerald-700 text-white text-[9.5px] font-black uppercase px-2.5 py-1.5 rounded-lg transition cursor-pointer"
+                                          >
+                                            Check In
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
