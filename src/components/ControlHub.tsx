@@ -1452,7 +1452,7 @@ export default function ControlHub({
                     }}
                     className="border border-gray-200 rounded-xl py-2 px-3 text-xs focus:outline-none focus:border-[#0D2B35] bg-white cursor-pointer"
                   >
-                    <option value="All">All Statuses</option>
+                    <option value="All">All Status</option>
                     <option value="Confirmed">Confirmed</option>
                     <option value="Checked In">Checked In</option>
                     <option value="Pending">Pending</option>
