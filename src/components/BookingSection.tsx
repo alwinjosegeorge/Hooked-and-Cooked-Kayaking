@@ -1246,7 +1246,7 @@ export default function BookingSection({
                             {/* Single Kayaks Row */}
                             <div className="flex items-center justify-between w-full border-b border-gray-100 pb-3">
                               <div className="flex flex-col text-left">
-                                <span className="text-[13px] font-extrabold text-ink uppercase tracking-wide">🚣 Single Kayaks</span>
+                                <span className="text-[13px] font-extrabold text-ink uppercase tracking-wide">Single Kayaks</span>
                                 <span className="text-[10.5px] text-gray-500 font-medium">₹450 / Kayak (1 Person)</span>
                               </div>
                               <div style={{
@@ -1283,7 +1283,7 @@ export default function BookingSection({
                             {/* Double Kayaks Row */}
                             <div className="flex items-center justify-between w-full border-b border-gray-100 pb-3">
                               <div className="flex flex-col text-left">
-                                <span className="text-[13px] font-extrabold text-ink uppercase tracking-wide">🚣🚣 Double Kayaks</span>
+                                <span className="text-[13px] font-extrabold text-ink uppercase tracking-wide">Double Kayaks</span>
                                 <span className="text-[10.5px] text-gray-500 font-medium">₹900 / Kayak (2 People)</span>
                               </div>
                               <div style={{
