@@ -16,7 +16,7 @@ export const siteConfig = {
   twitterHandle: "@hookedandcooked", // ← FIX: was missing, caused runtime crash in injectSEO.ts
 
   phone: "+91-90726 11622",
-  email: "hookedandcooked.riverdine@gmail.com", // ← FIX: removed leading/trailing spaces
+  email: "info@visitkadambrayar.com",
 
   address: {
     street: "Kadambrayar", // ← FIX: removed extra spaces

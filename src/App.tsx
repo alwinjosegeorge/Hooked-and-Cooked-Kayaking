@@ -246,6 +246,24 @@ function App() {
     qrUrl?: string;
   } | null>(null);
 
+  // Scroll to hash on route change / load
+  useEffect(() => {
+    if (window.location.hash) {
+      const targetId = window.location.hash.substring(1);
+      const el = document.getElementById(targetId);
+      if (el) {
+        setTimeout(() => {
+          const lenisInstance = (window as any).lenis;
+          if (lenisInstance && typeof lenisInstance.scrollTo === 'function') {
+            lenisInstance.scrollTo(el, { duration: 0.9 });
+          } else {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 150);
+      }
+    }
+  }, [currentPath]);
+
   // Initialize and Sync states
   useEffect(() => {
     const loadInitialData = async () => {
@@ -289,11 +307,32 @@ function App() {
     const handleLinkClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const anchor = target.closest('a');
-      if (anchor && anchor.getAttribute('href')?.startsWith('/')) {
-        e.preventDefault();
-        const url = anchor.getAttribute('href')!;
-        window.history.pushState({}, '', url);
-        window.dispatchEvent(new PopStateEvent('popstate'));
+      if (anchor) {
+        const href = anchor.getAttribute('href') || '';
+        if (href.startsWith('/')) {
+          // If it is a hash link like "/#popular-tours", check if we are on the home page and can scroll to it directly
+          if (href.startsWith('/#')) {
+            const targetId = href.substring(2);
+            const el = document.getElementById(targetId);
+            if (el) {
+              e.preventDefault();
+              window.history.pushState({}, '', href);
+              
+              const lenisInstance = (window as any).lenis;
+              if (lenisInstance && typeof lenisInstance.scrollTo === 'function') {
+                lenisInstance.scrollTo(el, { duration: 0.9 });
+              } else {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+              return;
+            }
+          }
+          
+          e.preventDefault();
+          const url = anchor.getAttribute('href')!;
+          window.history.pushState({}, '', url);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }
       }
     };
     document.addEventListener('click', handleLinkClick);
