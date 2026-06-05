@@ -754,14 +754,6 @@ export default function ControlHub({
         {/* Particulars details info grid */}
         <div className="space-y-3 text-xs">
           <div className="flex justify-between py-1 border-b border-gray-100/50">
-            <span className="text-gray-400 font-medium">Selected Route:</span>
-            <span className="font-extrabold text-gray-800">{getRouteName(selectedBooking.route)}</span>
-          </div>
-          <div className="flex justify-between py-1 border-b border-gray-100/50">
-            <span className="text-gray-400 font-medium">Session Slot:</span>
-            <span className="font-extrabold text-gray-800">{selectedBooking.slot}</span>
-          </div>
-          <div className="flex justify-between py-1 border-b border-gray-100/50">
             <span className="text-gray-400 font-medium">Date & Type:</span>
             <span className="font-extrabold text-gray-800">{selectedBooking.date} ({getKayakTypeDisplay(selectedBooking.kayakType)})</span>
           </div>
@@ -1515,10 +1507,10 @@ export default function ControlHub({
                             <div className="text-xs text-gray-800">
                               <span className="font-extrabold text-gray-900 text-sm block">{b.name}</span>
                               <div className="text-gray-500 font-medium mt-1 truncate max-w-[280px]">
-                                {getRouteName(b.route)}
+                                {getKayakTypeDisplay(b.kayakType)}
                               </div>
                               <div className="text-gray-400 mt-0.5">
-                                {b.slot} • {getKayakTypeDisplay(b.kayakType)} • {new Date(b.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                {new Date(b.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                               </div>
                             </div>
                             <div className="flex justify-between items-center pt-1 border-t border-gray-50">
@@ -1554,7 +1546,7 @@ export default function ControlHub({
                         <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-wider">
                           <th className="py-4 px-4">ID</th>
                           <th className="py-4 px-4">Customer</th>
-                          <th className="py-4 px-4">Route & Slot</th>
+                          <th className="py-4 px-4">Kayak Type</th>
                           <th className="py-4 px-4">Date</th>
                           <th className="py-4 px-4">Price</th>
                           <th className="py-4 px-4">Status</th>
@@ -1586,13 +1578,8 @@ export default function ControlHub({
                                   <span className="font-extrabold text-gray-900 block">{b.name}</span>
                                   <span className="text-[10px] text-gray-400 block mt-0.5">{b.phone}</span>
                                 </td>
-                                <td className="py-4 px-4">
-                                  <span className="font-bold text-gray-800 block truncate max-w-[150px] sm:max-w-[180px]">
-                                    {getRouteName(b.route)}
-                                  </span>
-                                  <span className="text-[10px] text-gray-500 block mt-0.5 font-semibold">
-                                    {b.slot} • {getKayakTypeDisplay(b.kayakType)}
-                                  </span>
+                                <td className="py-4 px-4 font-bold text-gray-800">
+                                  {getKayakTypeDisplay(b.kayakType)}
                                 </td>
                                 <td className="py-4 px-4 text-gray-600 font-medium">
                                   {new Date(b.date).toLocaleDateString('en-GB', {
@@ -1696,7 +1683,7 @@ export default function ControlHub({
 
                 {/* Inspect Details panel (Desktop view) */}
                 {selectedBookingId && selectedBooking && (
-                  <div className="hidden lg:block sticky top-24 max-h-[calc(100vh-120px)] w-auto bg-white rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] p-6 space-y-6 self-start relative overflow-y-auto lg:no-scrollbar">
+                  <div className="hidden lg:block sticky top-24 w-auto bg-white rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] p-6 space-y-6 self-start relative">
                     {renderDetailsContent()}
                   </div>
                 )}
@@ -2406,7 +2393,7 @@ export default function ControlHub({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Email Address</label>
                   <input 
@@ -2428,30 +2415,6 @@ export default function ControlHub({
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#0D2B35]"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Select Route *</label>
-                  <select 
-                    value={bookingForm.route}
-                    onChange={(e) => setBookingForm(prev => ({ ...prev, route: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs bg-white focus:outline-none"
-                  >
-                    {ROUTES.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Schedule Run *</label>
-                  <select 
-                    value={bookingForm.slot}
-                    onChange={(e) => setBookingForm(prev => ({ ...prev, slot: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs bg-white focus:outline-none"
-                  >
-                    {SLOTS.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
 
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Kayak Class *</label>
@@ -2470,7 +2433,7 @@ export default function ControlHub({
                         return { ...prev, kayakType: val, guests: updatedGuests };
                       });
                     }}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs bg-white focus:outline-none"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs bg-white focus:outline-none focus:border-[#0D2B35]"
                   >
                     <option value="single">Single Kayak (₹450/head)</option>
                     <option value="double">Double Kayak (₹900/kayak)</option>
