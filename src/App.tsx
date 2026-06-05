@@ -17,6 +17,7 @@ import Reviews from './components/Reviews';
 import Footer from './components/Footer';
 const ControlHub = lazy(() => import('./components/ControlHub'));
 const BoardingPass = lazy(() => import('./components/BoardingPass'));
+import PinLock from './components/PinLock';
 
 
 
@@ -227,6 +228,7 @@ const generateMockBookings = (): Booking[] => {
 function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const [isLoading, setIsLoading] = useState(true);
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
   
   // Dynamic Global State hooks
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -595,6 +597,9 @@ function App() {
       <div className="fixed inset-0 pointer-events-none z-40 bg-[linear-gradient(rgba(18,30,32,0)_98%,rgba(0,245,255,0.01)_98%)] bg-[size:100%_24px]" />
       
       {isControlHub ? (
+        !adminUnlocked ? (
+          <PinLock onUnlock={() => setAdminUnlocked(true)} />
+        ) : (
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-glacier-cyan font-mono text-xs tracking-widest animate-pulse bg-abyss-black">LOADING SYSTEM PORTAL...</div>}>
           <ControlHub 
             bookings={bookings}
@@ -613,6 +618,7 @@ function App() {
             }}
           />
         </Suspense>
+        )
       ) : isBoardingPass ? (
         <div className="bg-[#FAF2F0] min-h-screen">
           <Navbar currentPath={currentPath} />
