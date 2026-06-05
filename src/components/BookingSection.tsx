@@ -450,6 +450,10 @@ export default function BookingSection({
     
     const status = getDateStatus(day, currentMonth, currentYear);
     if (status !== 'past' && status !== 'soldout') {
+      // Preload the Custom Group image early in the flow
+      const img = new Image();
+      img.src = '/Custom group.png';
+
       setForm(p => ({ ...p, date: dateStr, route: 'kadambrayar', slot: '' })); // reset dependencies
       setSubStep(2); // Auto advance to slots selection
     }
