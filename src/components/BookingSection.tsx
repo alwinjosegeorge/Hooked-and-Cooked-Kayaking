@@ -302,13 +302,11 @@ export default function BookingSection({
 
   const handleMixedSingleChange = (newSingle: number) => {
     if (newSingle < 0) return;
-    if (newSingle === 0 && mixedDoubleCount === 0) return;
     updateMixedCounts(newSingle, mixedDoubleCount);
   };
 
   const handleMixedDoubleChange = (newDouble: number) => {
     if (newDouble < 0) return;
-    if (mixedSingleCount === 0 && newDouble === 0) return;
     updateMixedCounts(mixedSingleCount, newDouble);
   };
 
@@ -492,6 +490,11 @@ export default function BookingSection({
       reqGuests = s + d * 2;
     }
 
+    if (reqGuests <= 0) {
+      alert('Please select at least one kayak to proceed.');
+      return;
+    }
+
     if (reqGuests > remainingGuests) {
       alert(`Cannot proceed. Exceeds overall slot capacity. (Requested: ${reqGuests} guests, Remaining: ${remainingGuests})`);
       return;
@@ -531,6 +534,11 @@ export default function BookingSection({
       reqSingle = s;
       reqDouble = d;
       reqGuests = s + d * 2;
+    }
+
+    if (reqGuests <= 0) {
+      alert('Please select at least one kayak to proceed.');
+      return;
     }
 
     if (reqGuests > remainingGuests) {

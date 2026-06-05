@@ -386,6 +386,11 @@ export default function ControlHub({
       reqGuests = s + d * 2;
     }
 
+    if (reqGuests <= 0) {
+      alert('Please select at least one kayak to proceed.');
+      return;
+    }
+
     if (reqGuests > remainingGuests) {
       alert(`Cannot add booking. Exceeds overall slot capacity. (Requested: ${reqGuests} guests, Remaining: ${remainingGuests})`);
       return;
