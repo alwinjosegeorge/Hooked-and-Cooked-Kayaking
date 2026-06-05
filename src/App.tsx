@@ -7,16 +7,17 @@ import MobileBottomNav from './components/MobileBottomNav';
 import type { Booking, ClosedSlot } from './types';
 import { generateSecurityToken } from './utils/security';
 
-const PopularTours = lazy(() => import('./components/PopularTours'));
-const Intro = lazy(() => import('./components/Intro'));
-const VideoSection = lazy(() => import('./components/VideoSection'));
-const BookingSection = lazy(() => import('./components/BookingSection'));
-const GallerySection = lazy(() => import('./components/GallerySection'));
-const PaddleTogether = lazy(() => import('./components/PaddleTogether'));
-const Reviews = lazy(() => import('./components/Reviews'));
-const Footer = lazy(() => import('./components/Footer'));
+import PopularTours from './components/PopularTours';
+import Intro from './components/Intro';
+import VideoSection from './components/VideoSection';
+import BookingSection from './components/BookingSection';
+import GallerySection from './components/GallerySection';
+import PaddleTogether from './components/PaddleTogether';
+import Reviews from './components/Reviews';
+import Footer from './components/Footer';
 const ControlHub = lazy(() => import('./components/ControlHub'));
 const BoardingPass = lazy(() => import('./components/BoardingPass'));
+
 
 
 // Helper to format today's date in YYYY-MM-DD format based on local time

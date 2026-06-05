@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ShieldCheck, Zap, CreditCard, ChevronRight, QrCode, Share2 } from 'lucide-react';
 import type { Booking, ClosedSlot } from '../types';
-import QRCode from 'qrcode';
-import html2canvas from 'html2canvas';
 
 const SLOTS = [
   { time: '6:00 AM' },
@@ -149,9 +147,13 @@ export default function BookingSection({
         token: createdBooking.securityToken,
         guests: createdBooking.guests
       });
-      QRCode.toDataURL(qrPayload, { margin: 1, width: 200 })
-        .then(url => setQrCodeUrl(url))
-        .catch(err => console.error('Error generating QR code locally: ', err));
+      import('qrcode')
+        .then(({ default: qrcode }) => {
+          qrcode.toDataURL(qrPayload, { margin: 1, width: 200 })
+            .then(url => setQrCodeUrl(url))
+            .catch(err => console.error('Error generating QR code locally: ', err));
+        })
+        .catch(err => console.error('Error importing qrcode dynamically: ', err));
     }
   }, [createdBooking]);
 
@@ -382,49 +384,56 @@ export default function BookingSection({
     setDownloading(true);
     // Wrap in setTimeout to allow React to finish state re-rendering before capturing DOM
     setTimeout(() => {
-      html2canvas(ticketElement, {
-        scale: 3, // High quality resolution image
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#FFFFFF', // Keep the ticket background white
-        logging: false,
-        onclone: (clonedDoc) => {
-          const card = clonedDoc.getElementById('success-ticket-card');
-          if (card) {
-            card.style.transform = 'none';
-            card.style.opacity = '1';
-            
-            // Remove crossorigin attributes from base64 data URLs to prevent CORS blockages
-            const imgs = card.getElementsByTagName('img');
-            for (let i = 0; i < imgs.length; i++) {
-              if (imgs[i].src && imgs[i].src.startsWith('data:')) {
-                imgs[i].removeAttribute('crossorigin');
+      import('html2canvas')
+        .then(({ default: html2canvas }) => {
+          html2canvas(ticketElement, {
+            scale: 3, // High quality resolution image
+            useCORS: true,
+            allowTaint: false,
+            backgroundColor: '#FFFFFF', // Keep the ticket background white
+            logging: false,
+            onclone: (clonedDoc) => {
+              const card = clonedDoc.getElementById('success-ticket-card');
+              if (card) {
+                card.style.transform = 'none';
+                card.style.opacity = '1';
+                
+                // Remove crossorigin attributes from base64 data URLs to prevent CORS blockages
+                const imgs = card.getElementsByTagName('img');
+                for (let i = 0; i < imgs.length; i++) {
+                  if (imgs[i].src && imgs[i].src.startsWith('data:')) {
+                    imgs[i].removeAttribute('crossorigin');
+                  }
+                }
+
+                let parent = card.parentElement;
+                while (parent) {
+                  parent.style.transform = 'none';
+                  parent.style.opacity = '1';
+                  parent = parent.parentElement;
+                }
               }
             }
-
-            let parent = card.parentElement;
-            while (parent) {
-              parent.style.transform = 'none';
-              parent.style.opacity = '1';
-              parent = parent.parentElement;
-            }
-          }
-        }
-      }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = imgData;
-        link.download = `Hooked_Cooked_Ticket_${createdBooking?.id}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setDownloading(false);
-      }).catch(err => {
-        console.error('Error downloading ticket: ', err);
-        setDownloading(false);
-        // Fallback
-        window.print();
-      });
+          }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = imgData;
+            link.download = `Hooked_Cooked_Ticket_${createdBooking?.id}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setDownloading(false);
+          }).catch(err => {
+            console.error('Error downloading ticket: ', err);
+            setDownloading(false);
+            // Fallback
+            window.print();
+          });
+        })
+        .catch(err => {
+          console.error('Failed to load html2canvas dynamically:', err);
+          setDownloading(false);
+        });
     }, 150);
   };
 
@@ -964,7 +973,6 @@ export default function BookingSection({
                                   src={route.image} 
                                   alt={route.name} 
                                   className="w-16 h-16 rounded-xl object-cover" 
-                                  loading="lazy"
                                 />
                                 <div className="text-left flex-1 min-w-0">
                                   <h4 className="text-[12.5px] font-black text-ink uppercase tracking-wide truncate">
@@ -1101,7 +1109,7 @@ export default function BookingSection({
                                   boxShadow: isSelected ? '0 4px 15px rgba(0,0,0,0.05)' : 'none',
                                 }}
                               >
-                                <img src={item.icon} alt={item.label} className="w-12 h-12 object-contain mb-1" loading="lazy" />
+                                <img src={item.icon} alt={item.label} className="w-12 h-12 object-contain mb-1" />
                                 <span className="text-[12.5px] font-black uppercase tracking-wide leading-none">{item.label}</span>
                                 <span className="text-[10px] text-gray-500 font-medium mt-0.5">{item.sub}</span>
                               </button>
