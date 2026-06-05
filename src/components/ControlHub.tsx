@@ -1171,6 +1171,16 @@ export default function ControlHub({
                                           </span>
                                         </div>
 
+                                        {b.status !== 'Cancelled' && (
+                                          <button
+                                            type="button"
+                                            onClick={() => handleSendWhatsApp(b)}
+                                            className="bg-[#00a884] hover:bg-[#00a884]/90 text-white text-[9.5px] font-black uppercase px-2.5 py-1.5 rounded-lg transition cursor-pointer"
+                                          >
+                                            WhatsApp
+                                          </button>
+                                        )}
+
                                         {b.status !== 'Checked In' && b.status !== 'Cancelled' && (
                                           <button
                                             type="button"
@@ -1243,6 +1253,20 @@ export default function ControlHub({
                               <span>{getRouteName(b.route)} ({b.slot})</span>
                               <span className="font-extrabold text-gray-700">{b.guests} Guests</span>
                             </span>
+                            {b.status !== 'Cancelled' && (
+                              <div className="mt-2.5 pt-2 border-t border-gray-100/50 flex justify-end">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSendWhatsApp(b);
+                                  }}
+                                  className="text-[9.5px] font-black uppercase text-[#00a884] hover:underline"
+                                >
+                                  WhatsApp Confirmation
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -1384,9 +1408,23 @@ export default function ControlHub({
                             </div>
                             <div className="flex justify-between items-center pt-1 border-t border-gray-50">
                               <span className="font-extrabold text-gray-900">₹{b.amount.toLocaleString('en-IN')}</span>
-                              <button className="text-xs font-bold text-[#0D2B35] hover:underline">
-                                Inspect →
-                              </button>
+                              <div className="flex items-center gap-3">
+                                {b.status !== 'Cancelled' && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleSendWhatsApp(b);
+                                    }}
+                                    className="text-xs font-bold text-[#00a884] hover:underline"
+                                  >
+                                    WhatsApp
+                                  </button>
+                                )}
+                                <span className="text-xs font-bold text-[#0D2B35] hover:underline">
+                                  Inspect →
+                                </span>
+                              </div>
                             </div>
                           </div>
                         );
@@ -1465,15 +1503,29 @@ export default function ControlHub({
                                   </span>
                                 </td>
                                 <td className="py-4 px-6">
-                                  <button 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedBookingId(b.id);
-                                    }}
-                                    className="text-xs font-bold text-[#0D2B35] hover:underline"
-                                  >
-                                    Inspect
-                                  </button>
+                                  <div className="flex items-center gap-3">
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedBookingId(b.id);
+                                      }}
+                                      className="text-xs font-bold text-[#0D2B35] hover:underline"
+                                    >
+                                      Inspect
+                                    </button>
+                                    {b.status !== 'Cancelled' && (
+                                      <button 
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleSendWhatsApp(b);
+                                        }}
+                                        className="text-xs font-bold text-[#00a884] hover:underline"
+                                      >
+                                        WhatsApp
+                                      </button>
+                                    )}
+                                  </div>
                                 </td>
                               </tr>
                             );
