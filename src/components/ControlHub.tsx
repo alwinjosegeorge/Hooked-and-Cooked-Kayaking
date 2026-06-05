@@ -1364,7 +1364,7 @@ export default function ControlHub({
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 {/* Bookings table list */}
-                <div className={`${selectedBookingId ? 'lg:col-span-2' : 'lg:col-span-3'} bg-white rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden transition-all duration-300`}>
+                <div className={`${selectedBookingId ? 'lg:col-span-2' : 'lg:col-span-3'} min-w-0 bg-white rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden transition-all duration-300`}>
                   
                   {/* Mobile Card-based List (block md:hidden) */}
                   <div className="block md:hidden divide-y divide-gray-100">
@@ -1437,13 +1437,13 @@ export default function ControlHub({
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-wider">
-                          <th className="py-4 px-6">ID</th>
-                          <th className="py-4 px-6">Customer</th>
-                          <th className="py-4 px-6">Route & Slot</th>
-                          <th className="py-4 px-6">Date</th>
-                          <th className="py-4 px-6">Price</th>
-                          <th className="py-4 px-6">Status</th>
-                          <th className="py-4 px-6">Action</th>
+                          <th className="py-4 px-4">ID</th>
+                          <th className="py-4 px-4">Customer</th>
+                          <th className="py-4 px-4">Route & Slot</th>
+                          <th className="py-4 px-4">Date</th>
+                          <th className="py-4 px-4">Price</th>
+                          <th className="py-4 px-4">Status</th>
+                          <th className="py-4 px-4">Action</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 text-xs">
@@ -1464,32 +1464,32 @@ export default function ControlHub({
                                 }`}
                                 onClick={() => setSelectedBookingId(b.id)}
                               >
-                                <td className="py-4 px-6 font-mono font-black text-[#0D2B35]">
+                                <td className="py-4 px-4 font-mono font-black text-[#0D2B35]">
                                   {b.id}
                                 </td>
-                                <td className="py-4 px-6">
+                                <td className="py-4 px-4">
                                   <span className="font-extrabold text-gray-900 block">{b.name}</span>
                                   <span className="text-[10px] text-gray-400 block mt-0.5">{b.phone}</span>
                                 </td>
-                                <td className="py-4 px-6">
-                                  <span className="font-bold text-gray-800 block truncate max-w-[200px]">
+                                <td className="py-4 px-4">
+                                  <span className="font-bold text-gray-800 block truncate max-w-[150px] sm:max-w-[180px]">
                                     {getRouteName(b.route)}
                                   </span>
                                   <span className="text-[10px] text-gray-500 block mt-0.5 font-semibold">
                                     {b.slot} • {b.kayakType}
                                   </span>
                                 </td>
-                                <td className="py-4 px-6 text-gray-600 font-medium">
+                                <td className="py-4 px-4 text-gray-600 font-medium">
                                   {new Date(b.date).toLocaleDateString('en-GB', {
                                     day: '2-digit',
                                     month: 'short',
                                     year: 'numeric'
                                   })}
                                 </td>
-                                <td className="py-4 px-6 font-extrabold text-gray-900">
+                                <td className="py-4 px-4 font-extrabold text-gray-900">
                                   ₹{b.amount.toLocaleString('en-IN')}
                                 </td>
-                                <td className="py-4 px-6">
+                                <td className="py-4 px-4">
                                   <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md inline-block ${
                                     b.status === 'Checked In' 
                                       ? 'bg-emerald-100 text-emerald-800' 
@@ -1502,7 +1502,7 @@ export default function ControlHub({
                                     {b.status}
                                   </span>
                                 </td>
-                                <td className="py-4 px-6">
+                                <td className="py-4 px-4">
                                   <div className="flex items-center gap-3">
                                     <button 
                                       onClick={(e) => {
