@@ -499,6 +499,13 @@ export default function ControlHub({
         return;
       }
 
+      if (bookingId && !bookings.some(b => b.id === bookingId)) {
+        const found = bookings.find(b => b.id.endsWith(bookingId) || b.id.toLowerCase().endsWith(bookingId.toLowerCase()));
+        if (found) {
+          bookingId = found.id;
+        }
+      }
+
       // Confirm Check-In call
       const res = onConfirmCheckIn(bookingId, token, isManualInput);
       if (res.success && res.booking) {
@@ -533,6 +540,13 @@ export default function ControlHub({
           const parts = trimmed.split(':');
           bookingId = parts[0].trim();
           token = parts[1].trim();
+        }
+
+        if (bookingId && !bookings.some(b => b.id === bookingId)) {
+          const found = bookings.find(b => b.id.endsWith(bookingId) || b.id.toLowerCase().endsWith(bookingId.toLowerCase()));
+          if (found) {
+            bookingId = found.id;
+          }
         }
 
         const res = onConfirmCheckIn(bookingId, token, isManualInput);
