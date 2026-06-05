@@ -23,6 +23,33 @@ const YoutubeIcon = () => (
 );
 
 export default function Footer() {
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    const isHome = window.location.pathname === '/';
+    if (isHome) {
+      let targetId = '';
+      if (href === '/') {
+        targetId = 'hero';
+      } else if (href.startsWith('/#')) {
+        targetId = href.substring(2);
+      } else if (href.startsWith('#')) {
+        targetId = href.substring(1);
+      }
+
+      if (targetId) {
+        const el = document.getElementById(targetId);
+        if (el) {
+          e.preventDefault();
+          const lenisInstance = (window as any).lenis;
+          if (lenisInstance && typeof lenisInstance.scrollTo === 'function') {
+            lenisInstance.scrollTo(el, { duration: 0.9 });
+          } else {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      }
+    }
+  };
+
   return (
     <footer className="relative text-[#E8E3D8] overflow-hidden select-none" style={{ backgroundColor: '#0D2B35' }}>
 
@@ -88,6 +115,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <a 
                     href={link.href} 
+                    onClick={(e) => handleLinkClick(e, link.href)}
                     className="text-[12px] md:text-[13px] text-[#8a9fa3] hover:text-white hover:pl-1 transition-all duration-300 font-light"
                   >
                     {link.name}
