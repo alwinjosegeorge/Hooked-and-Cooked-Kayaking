@@ -103,7 +103,7 @@ export default function BookingSection({
     }
 
     const options = {
-      key: 'rzp_test_SxPzJH8enhojon', // User's Test API Key
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SxPzJH8enhojon', // Configure via Vercel env variable, defaults to Test API Key
       amount: totalPrice * 100, // Amount in paise (1 INR = 100 Paise)
       currency: 'INR',
       name: 'Hooked & Cooked',
