@@ -452,7 +452,7 @@ export default function BookingSection({
     if (status !== 'past' && status !== 'soldout') {
       // Preload the Custom Group image early in the flow
       const img = new Image();
-      img.src = '/Custom group.png';
+      img.src = '/Custom group.webp';
 
       setForm(p => ({ ...p, date: dateStr, route: 'kadambrayar', slot: '' })); // reset dependencies
       setSubStep(2); // Auto advance to slots selection
@@ -1159,7 +1159,7 @@ export default function BookingSection({
                           {[
                             { type: 'single' as const, label: 'Single Kayak', sub: '₹450 / Person', icon: '/single_kayak.webp' },
                             { type: 'double' as const, label: 'Double Kayak', sub: '₹900 / Hull', icon: '/double_kayak.webp' },
-                            { type: 'mixed' as const, label: 'Custom Group', sub: 'Mix Single & Double', icon: '/Custom group.png' },
+                            { type: 'mixed' as const, label: 'Custom Group', sub: 'Mix Single & Double', icon: '/Custom group.webp' },
                           ].map(item => {
                             const isSelected = item.type === 'mixed'
                               ? form.kayakType.startsWith('mixed:')
