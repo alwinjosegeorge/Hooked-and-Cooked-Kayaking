@@ -129,7 +129,7 @@ export default function ControlHub({
     date: new Date().toISOString().split('T')[0],
     route: 'kadambrayar',
     slot: '8:00 AM',
-    kayakType: 'single' as 'single' | 'double',
+    kayakType: 'single' as string,
     guests: 2,
     name: '',
     email: '',
