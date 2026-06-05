@@ -136,8 +136,8 @@ export default function BookingSection({
     rzp.open();
   };
   
-  // Accordion active step in Step 1 (1: Date, 2: Route, 3: Slot, 4: Kayak, 5: Guests)
-  const [subStep, setSubStep]     = useState<1 | 2 | 3 | 4 | 5>(1);
+  // Accordion active step in Step 1 (1: Date, 2: Slot, 3: Kayak, 4: Guests)
+  const [subStep, setSubStep]     = useState<1 | 2 | 3 | 4>(1);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
 
   useEffect(() => {
@@ -164,7 +164,7 @@ export default function BookingSection({
 
   const [form, setForm]           = useState({
     date: '', // format YYYY-MM-DD
-    route: '',
+    route: 'kadambrayar',
     slot: '',
     kayakType: 'single' as 'single' | 'double',
     guests: 2,
@@ -330,8 +330,8 @@ export default function BookingSection({
     
     const status = getDateStatus(day, currentMonth, currentYear);
     if (status !== 'past' && status !== 'soldout') {
-      setForm(p => ({ ...p, date: dateStr, route: '', slot: '' })); // reset dependencies
-      setSubStep(2); // Auto advance to route selection
+      setForm(p => ({ ...p, date: dateStr, route: 'kadambrayar', slot: '' })); // reset dependencies
+      setSubStep(2); // Auto advance to slots selection
     }
   };
 
@@ -344,11 +344,10 @@ export default function BookingSection({
 
   const goToStep2 = () => {
     if (!form.date) { alert('Please select a date.'); setSubStep(1); return; }
-    if (!form.route) { alert('Please select an experience route.'); setSubStep(2); return; }
-    if (!form.slot) { alert('Please select a departure time slot.'); setSubStep(3); return; }
+    if (!form.slot) { alert('Please select a departure time slot.'); setSubStep(2); return; }
     if (isSlotClosed(form.slot, form.date)) {
       alert('This departure slot is now closed for bookings.');
-      setSubStep(3);
+      setSubStep(2);
       return;
     }
     setStep(2);
@@ -371,7 +370,7 @@ export default function BookingSection({
     setSubStep(1);
     setForm({
       date: '',
-      route: '',
+      route: 'kadambrayar',
       slot: '',
       kayakType: 'single',
       guests: 2,
@@ -879,64 +878,10 @@ export default function BookingSection({
                     )}
                   </AnimatePresence>
 
-                  {/* SUBSTEP 2: EXPERIENCE ROUTE */}
-                  {accordionHeader(2, 'Choose Experience Route', selectedRouteObj ? selectedRouteObj.name : '', subStep === 2, !!form.date)}
+                  {/* SUBSTEP 2: TIME SLOTS */}
+                  {accordionHeader(2, 'Choose Departure Time', form.slot, subStep === 2, !!form.date)}
                   <AnimatePresence>
                     {subStep === 2 && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        style={{ overflow: 'hidden' }}
-                        className="px-6 py-6 border-b border-[#F0EFEA]"
-                      >
-                        <div className="flex flex-col gap-4">
-                          {ROUTES.map(route => {
-                            const isSelected = form.route === route.id;
-                            return (
-                              <div
-                                key={route.id}
-                                onClick={() => {
-                                  setForm(p => ({ ...p, route: route.id, slot: '' }));
-                                  setSubStep(3); // Advance to slot selection
-                                }}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 16,
-                                  padding: '12px',
-                                  borderRadius: '16px',
-                                  border: isSelected ? `2px solid ${ink}` : '1px solid #EAE6DF',
-                                  background: '#FFFFFF',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.2s',
-                                }}
-                                className="hover:scale-[1.01]"
-                              >
-                                <img 
-                                  src={route.image} 
-                                  alt={route.name} 
-                                  className="w-16 h-16 rounded-xl object-cover" 
-                                />
-                                <div className="text-left flex-1 min-w-0">
-                                  <h4 className="text-[12.5px] font-black text-ink uppercase tracking-wide truncate">
-                                    {route.name}
-                                  </h4>
-                                  <p className="text-[10px] text-gray-500 leading-normal font-light text-left">
-                                    {route.desc}
-                                  </p>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* SUBSTEP 3: TIME SLOTS */}
-                  {accordionHeader(3, 'Choose Departure Time', form.slot, subStep === 3, !!form.route)}
-                  <AnimatePresence>
-                    {subStep === 3 && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
@@ -979,7 +924,7 @@ export default function BookingSection({
                                 onClick={() => {
                                   if (!isFull) {
                                     setForm(p => ({ ...p, slot: slot.time }));
-                                    setSubStep(4); // Auto advance to kayak type
+                                    setSubStep(3); // Auto advance to kayak type
                                   }
                                 }}
                                 style={{
@@ -1012,10 +957,10 @@ export default function BookingSection({
                     )}
                   </AnimatePresence>
 
-                  {/* SUBSTEP 4: KAYAK PLATFORM */}
-                  {accordionHeader(4, 'Choose Kayak Platform', form.kayakType === 'single' ? 'Single Kayak' : 'Double Kayak', subStep === 4, !!form.slot)}
+                  {/* SUBSTEP 3: KAYAK PLATFORM */}
+                  {accordionHeader(3, 'Choose Kayak Platform', form.kayakType === 'single' ? 'Single Kayak' : 'Double Kayak', subStep === 3, !!form.slot)}
                   <AnimatePresence>
-                    {subStep === 4 && (
+                    {subStep === 3 && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
@@ -1034,7 +979,7 @@ export default function BookingSection({
                                 type="button"
                                 onClick={() => {
                                   setForm(p => ({ ...p, kayakType: item.type }));
-                                  setSubStep(5); // Auto advance to guests count
+                                  setSubStep(4); // Auto advance to guests count
                                 }}
                                 style={{
                                   padding: '14px 12px',
@@ -1063,10 +1008,10 @@ export default function BookingSection({
                     )}
                   </AnimatePresence>
 
-                  {/* SUBSTEP 5: GUESTS COUNT */}
-                  {accordionHeader(5, 'Active Paddlers Count', `${form.guests} Guests`, subStep === 5, !!form.slot)}
+                  {/* SUBSTEP 4: GUESTS COUNT */}
+                  {accordionHeader(4, 'Active Paddlers Count', `${form.guests} Guests`, subStep === 4, !!form.slot)}
                   <AnimatePresence>
-                    {subStep === 5 && (
+                    {subStep === 4 && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
