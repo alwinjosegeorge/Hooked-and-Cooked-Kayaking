@@ -92,7 +92,7 @@ export default function ControlHub({
 
   // Search & Filters state
   const [bookingsSearch, setBookingsSearch] = useState('');
-  const [bookingsFilterStatus, setBookingsFilterStatus] = useState<string>('All');
+  const bookingsFilterStatus = 'All';
   const [bookingsFilterDate, setBookingsFilterDate] = useState<string>('');
   const [bookingsPage, setBookingsPage] = useState(1);
   const bookingsPerPage = 8;
@@ -1442,22 +1442,6 @@ export default function ControlHub({
                       className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-full focus:outline-none focus:border-[#0D2B35] bg-[#E8E3D8]/40"
                     />
                   </div>
-
-                  {/* Status filter */}
-                  <select 
-                    value={bookingsFilterStatus} 
-                    onChange={(e) => {
-                      setBookingsFilterStatus(e.target.value);
-                      setBookingsPage(1);
-                    }}
-                    className="border border-gray-200 rounded-xl py-2 px-3 text-xs focus:outline-none focus:border-[#0D2B35] bg-white cursor-pointer"
-                  >
-                    <option value="All">All Status</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Checked In">Checked In</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
 
                   {/* Date Picker */}
                   <input 
