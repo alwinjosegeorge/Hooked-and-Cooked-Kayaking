@@ -648,24 +648,7 @@ export default function BookingSection({
     return false;
   };
 
-  const getAvailabilityMessage = (dateStr: string) => {
-    if (!dateStr) return 'Select a date to check availability';
-    
-    let totalRemaining = 0;
-    let totalSlots = SLOTS.length;
-    let soldOutCount = 0;
 
-    SLOTS.forEach(slot => {
-      const { remaining } = getSlotAvailability(dateStr, slot.time);
-      if (remaining <= 0 || isSlotClosed(slot.time, dateStr)) soldOutCount++;
-      else totalRemaining += remaining;
-    });
-
-    if (soldOutCount === totalSlots) return 'Sold Out today';
-    if (totalRemaining <= 6) return 'Almost Full — Book soon!';
-    if (totalRemaining <= 18) return 'Limited Availability';
-    return 'Good Availability';
-  };
 
   const accordionHeader = (
     num: number,
@@ -1030,26 +1013,6 @@ export default function BookingSection({
                           <div className="grid grid-cols-7 gap-y-1 gap-x-1 justify-items-center">
                             {renderCalendar()}
                           </div>
-                        </div>
-
-                        {/* Availability Details below calendar */}
-                        <div className="mt-4 px-4 py-2.5 rounded-xl bg-[#F4EBDB] border border-[#EAE6DF] flex flex-col md:flex-row md:items-center justify-between gap-2">
-                          <span className="text-[10px] font-extrabold tracking-wide uppercase text-ink">
-                            {getAvailabilityMessage(form.date)}
-                          </span>
-                          {form.date && (
-                            <div className="flex flex-wrap gap-x-3 gap-y-1 items-center">
-                              <span className="flex items-center gap-1.5 text-[8.5px] font-bold text-gray-500 uppercase">
-                                <span className="w-2 h-2 rounded-[3px]" style={{ backgroundColor: '#D2F7F2' }} /> Available
-                              </span>
-                              <span className="flex items-center gap-1.5 text-[8.5px] font-bold text-gray-500 uppercase">
-                                <span className="w-2 h-2 rounded-[3px]" style={{ backgroundColor: '#FAF0D2' }} /> Limited
-                              </span>
-                              <span className="flex items-center gap-1.5 text-[8.5px] font-bold text-gray-500 uppercase">
-                                <span className="w-2 h-2 rounded-[3px]" style={{ backgroundColor: '#FADED9' }} /> Almost Full
-                              </span>
-                            </div>
-                          )}
                         </div>
                       </motion.div>
                     )}
