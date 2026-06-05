@@ -373,18 +373,6 @@ export default function BoardingPass() {
               <span className="text-[9.5px] font-medium text-[#FE5B63] mt-4 tracking-wide text-center px-4 leading-normal">
                 Note: Just show your QR code while boarding the kayak.
               </span>
-
-              {/* Codexora Branding */}
-              <div className="mt-4 pt-3.5 border-t border-gray-100 w-[85%] text-center">
-                <a 
-                  href="https://codexorastudio.vercel.app/" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-[8.5px] font-bold text-[#8A8996] hover:text-[#0052FF] transition-colors tracking-widest uppercase block"
-                >
-                  Developed & Designed by <span className="font-black text-[#0A0915] hover:text-[#0052FF] hover:underline">CODEXORA</span>
-                </a>
-              </div>
             </div>
 
           </div>

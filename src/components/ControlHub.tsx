@@ -2404,19 +2404,19 @@ export default function ControlHub({
                     required
                     value={bookingForm.name}
                     onChange={(e) => setBookingForm(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Alwin Jose"
+                    placeholder="Enter customer name"
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#0D2B35]"
                   />
                 </div>
                 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Phone Number *</label>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Customer WhatsApp Number *</label>
                   <input 
                     type="text" 
                     required
                     value={bookingForm.phone}
                     onChange={(e) => setBookingForm(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="Enter phone number"
+                    placeholder="Enter customer number"
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#0D2B35]"
                   />
                 </div>
@@ -2429,7 +2429,7 @@ export default function ControlHub({
                     type="email" 
                     value={bookingForm.email}
                     onChange={(e) => setBookingForm(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="alwin@example.com"
+                    placeholder="Enter email address"
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#0D2B35]"
                   />
                 </div>
