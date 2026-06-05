@@ -105,6 +105,11 @@ export default function ControlHub({
   const [paymentsPage, setPaymentsPage] = useState(1);
   const paymentsPerPage = 8;
 
+  // Manual booking kayak counts and type selection
+  const [manualBookingType, setManualBookingType] = useState<'single' | 'double' | 'mixed'>('single');
+  const [manualSingleCount, setManualSingleCount] = useState(2);
+  const [manualDoubleCount, setManualDoubleCount] = useState(0);
+
   // Selected details panel state
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const selectedBooking = bookings.find(b => b.id === selectedBookingId);
@@ -157,6 +162,27 @@ export default function ControlHub({
     phone: '',
     source: 'Phone Call' as 'Online' | 'WhatsApp' | 'Phone Call' | 'Walk-in'
   });
+
+  // Sync manual booking kayak counts and type to bookingForm parameters
+  useEffect(() => {
+    let type = 'single';
+    let guestsCount = 2;
+    if (manualBookingType === 'single') {
+      type = 'single';
+      guestsCount = manualSingleCount;
+    } else if (manualBookingType === 'double') {
+      type = 'double';
+      guestsCount = manualDoubleCount * 2;
+    } else if (manualBookingType === 'mixed') {
+      type = `mixed:${manualSingleCount}:${manualDoubleCount}`;
+      guestsCount = manualSingleCount + manualDoubleCount * 2;
+    }
+    setBookingForm(prev => ({ 
+      ...prev, 
+      kayakType: type, 
+      guests: guestsCount 
+    }));
+  }, [manualBookingType, manualSingleCount, manualDoubleCount]);
 
   // Calculate pricing in manual booking form when parameters change
   useEffect(() => {
@@ -404,6 +430,9 @@ export default function ControlHub({
       source: 'WhatsApp',
       amount: 900
     });
+    setManualBookingType('single');
+    setManualSingleCount(2);
+    setManualDoubleCount(0);
   };
 
   const handleBlockDate = (e: React.FormEvent) => {
@@ -2393,7 +2422,7 @@ export default function ControlHub({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Email Address</label>
                   <input 
@@ -2415,33 +2444,107 @@ export default function ControlHub({
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#0D2B35]"
                   />
                 </div>
+              </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Kayak Class *</label>
-                  <select 
-                    value={bookingForm.kayakType}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setBookingForm(prev => {
-                        let updatedGuests = prev.guests;
-                        if (val.startsWith('mixed:')) {
-                          const parts = val.split(':');
-                          const s = parseInt(parts[1], 10) || 0;
-                          const d = parseInt(parts[2], 10) || 0;
-                          updatedGuests = s + d * 2;
-                        }
-                        return { ...prev, kayakType: val, guests: updatedGuests };
-                      });
-                    }}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs bg-white focus:outline-none focus:border-[#0D2B35]"
-                  >
-                    <option value="single">Single Kayak (₹450/head)</option>
-                    <option value="double">Double Kayak (₹900/kayak)</option>
-                    <option value="mixed:1:1">Mixed Preset (1 Single + 1 Double)</option>
-                    <option value="mixed:2:1">Mixed Preset (2 Single + 1 Double)</option>
-                    <option value="mixed:3:1">Mixed Preset (3 Single + 1 Double)</option>
-                    <option value="mixed:2:2">Mixed Preset (2 Single + 2 Double)</option>
-                  </select>
+              {/* Kayak Setup Selection */}
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-gray-500 uppercase block">Kayak Class Selection *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'single', label: 'Single Kayak', sub: '₹450 / slot' },
+                    { id: 'double', label: 'Double Kayak', sub: '₹900 / slot' },
+                    { id: 'mixed', label: 'Custom Group', sub: 'Mixed setup' }
+                  ].map(type => {
+                    const isSelected = manualBookingType === type.id;
+                    return (
+                      <button
+                        key={type.id}
+                        type="button"
+                        onClick={() => {
+                          setManualBookingType(type.id as any);
+                          if (type.id === 'single') {
+                            setManualSingleCount(1);
+                            setManualDoubleCount(0);
+                          } else if (type.id === 'double') {
+                            setManualSingleCount(0);
+                            setManualDoubleCount(1);
+                          } else {
+                            setManualSingleCount(1);
+                            setManualDoubleCount(1);
+                          }
+                        }}
+                        className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition cursor-pointer ${
+                          isSelected 
+                            ? 'border-[#0D2B35] bg-[#0D2B35]/5 text-[#0D2B35] font-black' 
+                            : 'border-gray-200 hover:border-gray-300 text-gray-600 bg-white'
+                        }`}
+                      >
+                        <span className="text-xs font-bold">{type.label}</span>
+                        <span className={`text-[9px] mt-0.5 block ${isSelected ? 'text-[#0D2B35]/70' : 'text-gray-400'}`}>{type.sub}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Kayak Counters based on type */}
+                <div className="p-4 bg-gray-50/50 border border-gray-100 rounded-2xl space-y-3">
+                  {manualBookingType !== 'double' && (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-xs font-extrabold text-gray-800 block">Single Kayaks</span>
+                        <span className="text-[10px] text-gray-400 block mt-0.5">₹450 each (Max 8 available)</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          disabled={manualSingleCount <= (manualBookingType === 'single' ? 1 : 0)}
+                          onClick={() => setManualSingleCount(prev => Math.max(manualBookingType === 'single' ? 1 : 0, prev - 1))}
+                          className="w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center font-extrabold text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          -
+                        </button>
+                        <span className="text-sm font-black text-gray-800 min-w-4 text-center">{manualSingleCount}</span>
+                        <button
+                          type="button"
+                          disabled={manualSingleCount >= 8}
+                          onClick={() => setManualSingleCount(prev => Math.min(8, prev + 1))}
+                          className="w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center font-extrabold text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {manualBookingType === 'mixed' && <hr className="border-gray-100" />}
+
+                  {manualBookingType !== 'single' && (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-xs font-extrabold text-gray-800 block">Double Kayaks</span>
+                        <span className="text-[10px] text-gray-400 block mt-0.5">₹900 each (Max 2 available)</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          disabled={manualDoubleCount <= (manualBookingType === 'double' ? 1 : 0)}
+                          onClick={() => setManualDoubleCount(prev => Math.max(manualBookingType === 'double' ? 1 : 0, prev - 1))}
+                          className="w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center font-extrabold text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          -
+                        </button>
+                        <span className="text-sm font-black text-gray-800 min-w-4 text-center">{manualDoubleCount}</span>
+                        <button
+                          type="button"
+                          disabled={manualDoubleCount >= 2}
+                          onClick={() => setManualDoubleCount(prev => Math.min(2, prev + 1))}
+                          className="w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center font-extrabold text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2456,15 +2559,12 @@ export default function ControlHub({
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Guests *</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">Guests Capacity</label>
                   <input 
-                    type="number" 
-                    required
-                    min={1}
-                    max={12}
-                    value={bookingForm.guests}
-                    onChange={(e) => setBookingForm(prev => ({ ...prev, guests: parseInt(e.target.value, 10) || 1 }))}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#0D2B35]"
+                    type="text" 
+                    disabled
+                    value={`${bookingForm.guests} ${bookingForm.guests === 1 ? 'Paddler' : 'Paddlers'}`}
+                    className="w-full border border-gray-100 rounded-xl px-4 py-2.5 text-xs bg-gray-50 text-gray-500 cursor-not-allowed font-bold"
                   />
                 </div>
 
