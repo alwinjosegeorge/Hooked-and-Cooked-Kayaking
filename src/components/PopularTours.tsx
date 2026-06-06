@@ -90,7 +90,7 @@ export default function PopularTours() {
         {/* Horizontal Scroll Carousel on Mobile/Tablet, Grid on Desktop */}
         <div 
           ref={scrollContainerRef}
-          className="flex overflow-x-auto lg:grid lg:grid-cols-4 gap-6 md:gap-8 pb-6 lg:pb-0 snap-x snap-mandatory no-scrollbar"
+          className="flex overflow-x-auto lg:grid lg:grid-cols-4 gap-6 md:gap-8 pb-6 lg:pb-0 no-scrollbar"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {popularTours.map((tour, idx) => (
@@ -101,7 +101,7 @@ export default function PopularTours() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.8, delay: idx * 0.1 }}
               onClick={handleCardClick}
-              className="flex flex-col space-y-6 text-left group hover:translate-y-[-6px] transition-all duration-500 relative z-10 cursor-pointer w-[245px] sm:w-[285px] shrink-0 snap-start lg:w-auto lg:shrink"
+              className="flex flex-col space-y-6 text-left group hover:translate-y-[-6px] transition-all duration-500 relative z-10 cursor-pointer w-[245px] sm:w-[285px] shrink-0 lg:w-auto lg:shrink"
             >
               {/* Image Frame with rounded corners */}
               <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[20px] border border-transparent group-hover:border-glacier-cyan/25 group-hover:shadow-[0_15px_40px_rgba(0,245,255,0.06)] transition-all duration-500">
