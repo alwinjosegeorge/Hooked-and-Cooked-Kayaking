@@ -770,7 +770,13 @@ export default function BookingSection({
 
         {/* ── Header ── */}
         {!submitted && (
-          <div className="text-center mb-8 md:mb-14">
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-20px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="text-center mb-8 md:mb-14"
+          >
             <h2 style={{
               fontSize: 'clamp(36px, 5.5vw, 68px)',
               fontFamily: "'League Spartan', sans-serif",
@@ -786,7 +792,7 @@ export default function BookingSection({
             <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: '10.5px', letterSpacing: '2px', color: 'rgba(0,0,0,0.5)', textTransform: 'uppercase', fontWeight: 400, margin: 0, lineHeight: 1.6 }}>
               Real-time slot availability, dynamic pricing, and instant confirmation.
             </p>
-          </div>
+          </motion.div>
         )}
 
         {/* ── Two-column grid (Responsive stack on mobile) ── */}

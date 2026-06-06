@@ -49,10 +49,10 @@ export default function Intro() {
         
         {/* Centered Whale Tail icon */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: isMobileDevice ? "-30px" : "-100px" }}
-          transition={{ duration: 0.8 }}
+          viewport={{ once: true, margin: isMobileDevice ? "-20px" : "-100px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className="flex justify-center mb-6"
         >
           <div className="relative group">
@@ -62,10 +62,10 @@ export default function Intro() {
 
         {/* Headline */}
         <motion.h2
-          initial={{ opacity: 0, y: isMobileDevice ? 35 : 30 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: isMobileDevice ? "-30px" : "-100px" }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          viewport={{ once: true, margin: isMobileDevice ? "-20px" : "-100px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-4xl md:text-6xl lg:text-7xl font-black tracking-wide text-white uppercase max-w-5xl mx-auto leading-none mb-16 md:mb-32 font-sans"
         >
           Kayak Kerala Through <br />
@@ -80,10 +80,10 @@ export default function Intro() {
           {cards.map((card, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, y: isMobileDevice ? 28 : 25, scale: isMobileDevice ? 0.95 : 1 }}
+              initial={{ opacity: 0, y: 18, scale: 0.98 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{ duration: 0.9, delay: isMobileDevice ? (idx % 2) * 0.12 : idx * 0.1 }}
+              viewport={{ once: true, margin: "-25px" }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: isMobileDevice ? (idx % 2) * 0.05 : idx * 0.05 }}
               className="flex flex-col items-start"
             >
               {/* Illustration Icon */}

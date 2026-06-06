@@ -44,10 +44,10 @@ export default function PaddleTogether() {
 
             {/* Left Side: Family Kayaking image with floating transparent pill */}
             <motion.div
-              initial={{ opacity: 0, x: isMobileDevice ? -28 : -40, scale: isMobileDevice ? 0.96 : 1 }}
+              initial={{ opacity: 0, x: isMobileDevice ? -15 : -30, scale: 0.98 }}
               whileInView={{ opacity: 1, x: 0, scale: 1 }}
-              viewport={{ once: true, margin: isMobileDevice ? "-30px" : "-100px" }}
-              transition={{ duration: 1.0, ease: 'easeOut' }}
+              viewport={{ once: true, margin: isMobileDevice ? "-20px" : "-100px" }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
               className="lg:col-span-6 relative rounded-3xl overflow-hidden shadow-[0_15px_40px_rgba(7,25,29,0.10)] group aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-[400px] border border-[#e8e2da]"
             >
               <img
@@ -74,10 +74,10 @@ export default function PaddleTogether() {
 
             {/* Right Side: High-Contrast Editorial Content Layout */}
             <motion.div
-              initial={{ opacity: 0, x: isMobileDevice ? 28 : 40 }}
+              initial={{ opacity: 0, x: isMobileDevice ? 15 : 30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: isMobileDevice ? "-30px" : "-100px" }}
-              transition={{ duration: 1.0, ease: 'easeOut' }}
+              viewport={{ once: true, margin: isMobileDevice ? "-20px" : "-100px" }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
               className="lg:col-span-6 text-left flex flex-col justify-center items-start space-y-4 md:space-y-6"
             >
               <h2 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-[#07191d] tracking-tight leading-[0.95] font-sans">

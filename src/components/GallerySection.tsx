@@ -151,11 +151,11 @@ export default function GallerySection() {
               <motion.div
                 key={item.id}
                 layout={isMobileDevice ? false : true}
-                initial={{ opacity: 0, y: isMobileDevice ? 25 : 35, scale: 0.96 }}
+                initial={{ opacity: 0, y: 18, scale: 0.98 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-30px" }}
+                viewport={{ once: true, margin: "-25px" }}
                 exit={isMobileDevice ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.8, delay: isMobileDevice ? (idx % 2) * 0.08 : idx * 0.05 }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: isMobileDevice ? (idx % 2) * 0.04 : idx * 0.03 }}
                 className="break-inside-avoid mb-4 sm:mb-6 relative overflow-hidden rounded-[16px] sm:rounded-[24px] border border-[#e2ecee] bg-white group hover:shadow-[0_15px_40px_rgba(7,25,29,0.06)] hover:translate-y-[-4px] transition-all duration-500 cursor-pointer"
                 onClick={() => setSelectedImage(item)}
               >

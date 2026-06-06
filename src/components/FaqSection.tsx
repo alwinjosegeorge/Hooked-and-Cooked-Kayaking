@@ -53,8 +53,14 @@ export default function FaqSection() {
       <div className="max-w-4xl mx-auto px-6 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-glacier-cyan/20 bg-glacier-cyan/5 text-glacier-cyan text-[10px] font-mono tracking-[0.2em] uppercase mb-4 shadow-sm">
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-20px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="text-center mb-16"
+        >
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-glacier-cyan/20 bg-glacier-cyan/5 text-glacier-cyan text-[10px] font-mono tracking-[0.25em] uppercase mb-4 shadow-sm">
             <HelpCircle size={12} />
             <span>Got Questions?</span>
           </div>
@@ -64,15 +70,19 @@ export default function FaqSection() {
           <p className="text-xs sm:text-sm text-gray-400 max-w-lg mx-auto font-sans font-light leading-relaxed">
             Everything you need to know about our kayaking adventures, safety rules, and waterfront dining experience.
           </p>
-        </div>
+        </motion.div>
 
         {/* Accordion List */}
         <div className="space-y-4">
           {FAQ_ITEMS.map((item, index) => {
             const isOpen = openIndex === index;
             return (
-              <div
+              <motion.div
                 key={index}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-20px" }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: index * 0.04 }}
                 className="border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 bg-[#091F27]/40 backdrop-blur-md hover:border-glacier-cyan/30"
                 style={{
                   boxShadow: isOpen ? '0 10px 30px rgba(115, 230, 216, 0.04)' : 'none'
@@ -114,7 +124,7 @@ export default function FaqSection() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             );
           })}
         </div>
