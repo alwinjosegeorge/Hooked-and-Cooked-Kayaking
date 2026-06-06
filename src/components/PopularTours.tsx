@@ -100,10 +100,10 @@ export default function PopularTours() {
           {popularTours.map((tour, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, y: isMobileDevice ? 15 : 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: isMobileDevice ? 25 : 20, scale: isMobileDevice ? 0.96 : 1 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, margin: "-30px" }}
-              transition={{ duration: 0.8, delay: idx * 0.1 }}
+              transition={{ duration: 0.9, delay: idx * 0.08 }}
               onClick={handleCardClick}
               className="flex flex-col space-y-6 text-left group hover:translate-y-[-6px] transition-all duration-500 relative z-10 cursor-pointer w-[245px] sm:w-[285px] shrink-0 lg:w-auto lg:shrink"
             >

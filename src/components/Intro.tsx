@@ -62,10 +62,10 @@ export default function Intro() {
 
         {/* Headline */}
         <motion.h2
-          initial={{ opacity: 0, y: isMobileDevice ? 20 : 30 }}
+          initial={{ opacity: 0, y: isMobileDevice ? 35 : 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: isMobileDevice ? "-30px" : "-100px" }}
-          transition={{ duration: 1.0 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
           className="text-4xl md:text-6xl lg:text-7xl font-black tracking-wide text-white uppercase max-w-5xl mx-auto leading-none mb-16 md:mb-32 font-sans"
         >
           Kayak Kerala Through <br />
@@ -80,10 +80,10 @@ export default function Intro() {
           {cards.map((card, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, y: isMobileDevice ? 15 : 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: isMobileDevice ? 28 : 25, scale: isMobileDevice ? 0.95 : 1 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, margin: "-30px" }}
-              transition={{ duration: 0.8, delay: isMobileDevice ? (idx % 2) * 0.1 : idx * 0.1 }}
+              transition={{ duration: 0.9, delay: isMobileDevice ? (idx % 2) * 0.12 : idx * 0.1 }}
               className="flex flex-col items-start"
             >
               {/* Illustration Icon */}

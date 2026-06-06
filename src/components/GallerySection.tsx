@@ -147,14 +147,15 @@ export default function GallerySection() {
           className="columns-2 lg:columns-3 xl:columns-4 gap-4 sm:gap-6 max-w-6xl mx-auto [column-fill:_balance]"
         >
           <AnimatePresence mode={isMobileDevice ? "wait" : "popLayout"}>
-            {filteredItems.map((item) => (
+            {filteredItems.map((item, idx) => (
               <motion.div
                 key={item.id}
                 layout={isMobileDevice ? false : true}
-                initial={isMobileDevice ? false : { opacity: 0, scale: 0.9 }}
-                animate={isMobileDevice ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: isMobileDevice ? 25 : 35, scale: 0.96 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-30px" }}
                 exit={isMobileDevice ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
-                transition={isMobileDevice ? { duration: 0.2 } : { duration: 0.5 }}
+                transition={{ duration: 0.8, delay: isMobileDevice ? (idx % 2) * 0.08 : idx * 0.05 }}
                 className="break-inside-avoid mb-4 sm:mb-6 relative overflow-hidden rounded-[16px] sm:rounded-[24px] border border-[#e2ecee] bg-white group hover:shadow-[0_15px_40px_rgba(7,25,29,0.06)] hover:translate-y-[-4px] transition-all duration-500 cursor-pointer"
                 onClick={() => setSelectedImage(item)}
               >
