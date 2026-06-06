@@ -92,12 +92,18 @@ export default function Intro() {
               </div>
               
               {/* Heading */}
-              <h3 className="text-[11.5px] sm:text-[14px] font-extrabold tracking-[0.08em] leading-snug text-white uppercase mb-3 sm:mb-4 font-sans select-none">
+              <h3 
+                className="text-[11.5px] sm:text-[14px] leading-snug text-white mb-3 sm:mb-4 select-none"
+                style={{ fontFamily: "'League Spartan', sans-serif", fontWeight: 700, textTransform: 'uppercase' }}
+              >
                 {card.title}
               </h3>
               
               {/* Description */}
-              <p className="text-[11.5px] sm:text-[13px] text-[#ccd6d7] leading-relaxed font-sans font-normal tracking-wide max-w-[270px] select-text">
+              <p 
+                className="text-[11.5px] sm:text-[13px] text-[#ccd6d7] tracking-wide max-w-[270px] select-text"
+                style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400, lineHeight: 1.6 }}
+              >
                 {card.desc}
               </p>
             </motion.div>
