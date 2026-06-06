@@ -16,6 +16,7 @@ const BookingSection = lazy(() => import('./components/BookingSection'));
 const GallerySection = lazy(() => import('./components/GallerySection'));
 const PaddleTogether = lazy(() => import('./components/PaddleTogether'));
 const Reviews        = lazy(() => import('./components/Reviews'));
+const FaqSection     = lazy(() => import('./components/FaqSection'));
 const Footer         = lazy(() => import('./components/Footer'));
 const ControlHub     = lazy(() => import('./components/ControlHub'));
 const BoardingPass   = lazy(() => import('./components/BoardingPass'));
@@ -697,6 +698,7 @@ function App() {
             <Suspense fallback={null}><GallerySection /></Suspense>
             <Suspense fallback={null}><PaddleTogether /></Suspense>
             <Suspense fallback={null}><Reviews /></Suspense>
+            <Suspense fallback={null}><FaqSection /></Suspense>
           </main>
           <Suspense fallback={null}><Footer /></Suspense>
           <Suspense fallback={null}><MobileBottomNav /></Suspense>

@@ -111,6 +111,7 @@ export default function Footer() {
                 { name: 'Gallery', href: '/#gallery' },
                 { name: 'Book a Paddle', href: '/#booking-section' },
                 { name: 'Reviews', href: '/#reviews' },
+                { name: 'FAQ', href: '/#faq-section' },
               ].map((link) => (
                 <li key={link.name}>
                   <a 
