@@ -1485,7 +1485,7 @@ export default function BookingSection({
 
           {/* ──── RIGHT RECEIPT CARD (Sticky summary) ──── */}
           {!submitted && (
-            <div className="lg:sticky lg:top-28 self-start">
+            <div className="hidden lg:block lg:sticky lg:top-28 self-start">
               <div 
                 style={{
                   background: '#FFFFFF', borderRadius: '28px',
