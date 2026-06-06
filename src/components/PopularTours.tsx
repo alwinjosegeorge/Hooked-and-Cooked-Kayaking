@@ -90,7 +90,8 @@ export default function PopularTours() {
         {/* Horizontal Scroll Carousel on Mobile/Tablet, Grid on Desktop */}
         <div 
           ref={scrollContainerRef}
-          className="flex overflow-x-auto lg:grid lg:grid-cols-4 gap-6 md:gap-8 pb-6 lg:pb-0 snap-x snap-mandatory no-scrollbar scroll-smooth"
+          className="flex overflow-x-auto lg:grid lg:grid-cols-4 gap-6 md:gap-8 pb-6 lg:pb-0 snap-x snap-mandatory no-scrollbar"
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {popularTours.map((tour, idx) => (
             <motion.div
