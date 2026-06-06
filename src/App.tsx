@@ -616,6 +616,7 @@ function App() {
 
   const isControlHub = currentPath.startsWith('/control-hub');
   const isBoardingPass = currentPath.startsWith('/boarding-pass');
+  const isFaqPage = currentPath.startsWith('/faq');
 
   return (
     <div className="bg-abyss-black text-white min-h-screen relative font-sans antialiased selection:bg-glacier-cyan selection:text-abyss-black">
@@ -678,6 +679,18 @@ function App() {
             </Suspense>
           </div>
         </div>
+      ) : isFaqPage ? (
+        <div className="bg-abyss-black min-h-screen flex flex-col justify-between">
+          <div>
+            <Navbar currentPath={currentPath} />
+            <div className="pt-28 pb-12">
+              <Suspense fallback={<div className="h-40 flex items-center justify-center text-glacier-cyan font-mono text-xs tracking-widest animate-pulse">LOADING FAQS...</div>}>
+                <FaqSection />
+              </Suspense>
+            </div>
+          </div>
+          <Suspense fallback={null}><Footer /></Suspense>
+        </div>
       ) : (
         <>
           <Navbar currentPath={currentPath} />
@@ -698,7 +711,6 @@ function App() {
             <Suspense fallback={null}><GallerySection /></Suspense>
             <Suspense fallback={null}><PaddleTogether /></Suspense>
             <Suspense fallback={null}><Reviews /></Suspense>
-            <Suspense fallback={null}><FaqSection /></Suspense>
           </main>
           <Suspense fallback={null}><Footer /></Suspense>
           <Suspense fallback={null}><MobileBottomNav /></Suspense>
