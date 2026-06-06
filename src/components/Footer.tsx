@@ -81,27 +81,32 @@ export default function Footer() {
                 className="w-12 h-12 md:w-14 md:h-14 object-contain shrink-0" 
               />
               <div className="flex flex-col leading-none">
-                <h3 className="text-base md:text-lg font-black tracking-[0.2em] text-white uppercase leading-none">
+                <h3 className="text-base md:text-lg tracking-[0.2em] text-white uppercase leading-none"
+                  style={{ fontFamily: "'League Spartan', sans-serif", fontWeight: 700 }}>
                   HOOKED & COOKED
                 </h3>
-                <span className="text-[8px] font-mono tracking-[0.3em] text-[#C8A86B] uppercase mt-1">
+                <span className="text-[8px] font-mono tracking-[0.3em] text-[#C8A86B] uppercase mt-1"
+                  style={{ fontFamily: "'League Spartan', sans-serif" }}>
                   H & C BOAT CLUB
                 </span>
               </div>
             </div>
             
-            <p className="text-[12px] md:text-[13px] text-[#8a9fa3] leading-relaxed font-light">
+            <p className="text-[12px] md:text-[13px] text-[#8a9fa3] leading-relaxed"
+              style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400, lineHeight: 1.6 }}>
               River experiences through the hidden backwaters of Kochi.
             </p>
             
-            <p className="text-[10px] md:text-[11px] text-[#8fa7ab] italic font-serif leading-relaxed">
+            <p className="text-[10px] md:text-[11px] text-[#8fa7ab] italic leading-relaxed"
+              style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400, lineHeight: 1.6 }}>
               Slow paddles. Quiet waters. Meaningful journeys.
             </p>
           </div>
 
           {/* COL 2: Quick Links (Half width on mobile, 1 col on desktop) */}
           <div className="col-span-1 lg:col-span-1 space-y-4">
-            <h4 className="text-[9px] md:text-[10px] font-mono text-[#C8A86B] uppercase tracking-[0.25em] font-bold">
+            <h4 className="text-[9px] md:text-[10px] text-[#C8A86B] uppercase tracking-[0.25em]"
+              style={{ fontFamily: "'League Spartan', sans-serif", fontWeight: 700 }}>
               Quick Links
             </h4>
             <ul className="space-y-2.5">
@@ -117,7 +122,8 @@ export default function Footer() {
                   <a 
                     href={link.href} 
                     onClick={(e) => handleLinkClick(e, link.href)}
-                    className="text-[12px] md:text-[13px] text-[#8a9fa3] hover:text-white hover:pl-1 transition-all duration-300 font-light"
+                    className="text-[12px] md:text-[13px] text-[#8a9fa3] hover:text-white hover:pl-1 transition-all duration-300"
+                    style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400 }}
                   >
                     {link.name}
                   </a>
@@ -128,7 +134,8 @@ export default function Footer() {
 
           {/* COL 3: Connect (Half width on mobile, 1 col on desktop) */}
           <div className="col-span-1 lg:col-span-1 space-y-4">
-            <h4 className="text-[9px] md:text-[10px] font-mono text-[#C8A86B] uppercase tracking-[0.25em] font-bold">
+            <h4 className="text-[9px] md:text-[10px] text-[#C8A86B] uppercase tracking-[0.25em]"
+              style={{ fontFamily: "'League Spartan', sans-serif", fontWeight: 700 }}>
               Connect
             </h4>
             <div className="flex flex-col space-y-2.5">
@@ -136,40 +143,41 @@ export default function Footer() {
                 <span className="w-8 h-8 rounded-lg border border-[#1a3a45] group-hover:border-[#C8A86B]/40 flex items-center justify-center transition-all duration-300 shrink-0">
                   <InstagramIcon />
                 </span>
-                <span className="text-[12px] md:text-[13px] font-light">Instagram</span>
+                <span className="text-[12px] md:text-[13px]" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400 }}>Instagram</span>
               </a>
               <a href="https://www.facebook.com/share/18Wc6VxtKn/" target="_blank" rel="noreferrer" className="flex items-center gap-2.5 text-[#8a9fa3] hover:text-white transition-all duration-300 group">
                 <span className="w-8 h-8 rounded-lg border border-[#1a3a45] group-hover:border-[#C8A86B]/40 flex items-center justify-center transition-all duration-300 shrink-0">
                   <FacebookIcon />
                 </span>
-                <span className="text-[12px] md:text-[13px] font-light">Facebook</span>
+                <span className="text-[12px] md:text-[13px]" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400 }}>Facebook</span>
               </a>
               <a href="https://www.youtube.com/@HookedandCooked-l1l" target="_blank" rel="noreferrer" className="flex items-center gap-2.5 text-[#8a9fa3] hover:text-white transition-all duration-300 group">
                 <span className="w-8 h-8 rounded-lg border border-[#1a3a45] group-hover:border-[#C8A86B]/40 flex items-center justify-center transition-all duration-300 shrink-0">
                   <YoutubeIcon />
                 </span>
-                <span className="text-[12px] md:text-[13px] font-light">YouTube</span>
+                <span className="text-[12px] md:text-[13px]" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400 }}>YouTube</span>
               </a>
             </div>
           </div>
 
           {/* COL 4: Contact (Full width on mobile, 1 col on desktop) */}
           <div className="col-span-2 lg:col-span-1 space-y-4">
-            <h4 className="text-[9px] md:text-[10px] font-mono text-[#C8A86B] uppercase tracking-[0.25em] font-bold">
+            <h4 className="text-[9px] md:text-[10px] text-[#C8A86B] uppercase tracking-[0.25em]"
+              style={{ fontFamily: "'League Spartan', sans-serif", fontWeight: 700 }}>
               Contact
             </h4>
-            <ul className="space-y-3 text-[12px] md:text-[13px] text-[#8a9fa3]">
+            <ul className="space-y-3 text-[12px] md:text-[13px] text-[#8a9fa3]" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400 }}>
               <li className="flex items-start gap-2.5">
                 <MapPin size={14} className="text-[#C8A86B]/70 shrink-0 mt-0.5" />
-                <span className="font-light leading-relaxed">Kadambrayar, Kochi,<br/>Kerala, India</span>
+                <span className="leading-relaxed" style={{ lineHeight: 1.6 }}>Kadambrayar, Kochi,<br/>Kerala, India</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone size={13} className="text-[#C8A86B]/70 shrink-0" />
-                <a href="tel:+919072611622" className="hover:text-white transition-colors font-light tracking-wide">+91 90726 11622</a>
+                <a href="tel:+919072611622" className="hover:text-white transition-colors tracking-wide">+91 90726 11622</a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail size={13} className="text-[#C8A86B]/70 shrink-0" />
-                <a href="mailto:info@visitkadambrayar.com" className="hover:text-white transition-colors font-light break-all">
+                <a href="mailto:info@visitkadambrayar.com" className="hover:text-white transition-colors break-all">
                   info@visitkadambrayar.com
                 </a>
               </li>
