@@ -773,7 +773,8 @@ export default function BookingSection({
           <div className="text-center mb-8 md:mb-14">
             <h2 style={{
               fontSize: 'clamp(36px, 5.5vw, 68px)',
-              fontWeight: 900,
+              fontFamily: "'League Spartan', sans-serif",
+              fontWeight: 700,
               lineHeight: 1.0,
               textTransform: 'uppercase',
               color: ink,
@@ -782,7 +783,7 @@ export default function BookingSection({
             }}>
               Reserve Your Paddle
             </h2>
-            <p style={{ fontSize: '10.5px', letterSpacing: '2px', color: 'rgba(0,0,0,0.5)', textTransform: 'uppercase', fontWeight: 700, margin: 0, lineHeight: 1.4 }}>
+            <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: '10.5px', letterSpacing: '2px', color: 'rgba(0,0,0,0.5)', textTransform: 'uppercase', fontWeight: 400, margin: 0, lineHeight: 1.6 }}>
               Real-time slot availability, dynamic pricing, and instant confirmation.
             </p>
           </div>
@@ -1586,7 +1587,6 @@ export default function BookingSection({
             { label: 'Certified Guides', icon: '✓' },
             { label: 'Premium Imported Kayaks', icon: '✓' },
             { label: 'Life Jackets Included', icon: '✓' },
-            { label: 'Free Photos', icon: '✓' },
           ].map((trustItem, index) => (
             <div 
               key={index} 

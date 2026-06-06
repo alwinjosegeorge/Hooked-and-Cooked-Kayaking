@@ -107,10 +107,14 @@ export default function GallerySection() {
           <p className="text-[10px] font-mono tracking-[0.4em] text-[#129A8C] uppercase mb-3 font-bold">
             VISUAL DISPATCHES
           </p>
-          <h2 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tight text-[#07191d] font-sans leading-none">
+          <h2 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tight text-[#07191d] leading-none"
+            style={{ fontFamily: "'League Spartan', sans-serif", fontWeight: 700 }}
+          >
             Moments from the River
           </h2>
-          <p className="text-xs font-mono tracking-widest text-[#2c4044] uppercase mt-4">
+          <p className="text-xs font-mono tracking-widest text-[#2c4044] uppercase mt-4"
+            style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400, lineHeight: 1.6 }}
+          >
             Curated visual travelogue capturing peaceful village routes, sunsets, and local mangroves.
           </p>
         </div>
