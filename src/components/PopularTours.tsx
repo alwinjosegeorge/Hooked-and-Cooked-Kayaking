@@ -8,32 +8,36 @@ const isMobileDevice = typeof window !== 'undefined' && (window.innerWidth < 768
 
 const popularTours = [
   {
-    title: "Kadambrayar River & Mangrove Day Tour",
+    title: "Sunrise Kayaking",
+    price: "₹450",
+    subPrice: "per person",
+    badge: "Morning Special",
+    image: "/mangrove_tour.webp",
+    desc: "Start your day gliding through calm backwaters as the rising sun paints the sky. Experience peaceful waterways, birdsong, and the refreshing beauty of Kerala's morning landscapes."
+  },
+  {
+    title: "Sunset Kayaking",
     price: "₹450",
     subPrice: "per person",
     badge: "Most Popular",
-    image: "/mangrove_tour.webp",
-    desc: "Paddle through scenic mangrove waterways and peaceful backwater routes across Kadambrayar."
+    image: "/sunset_tour.webp",
+    desc: "Paddle through golden waters and witness breathtaking sunsets over Kerala's backwaters. A relaxing evening adventure perfect for couples, families, and nature lovers."
   },
   {
-    title: "Countryside Sunset Kayak Tour",
+    title: "City Ride",
     price: "₹450",
     subPrice: "per person",
-    badge: "Sunset Special",
-    image: "/sunset_tour.webp",
-    desc: "Experience golden sunsets and calm village waters through curated evening paddles."
-  },
-  {
-    title: "Vembanad Lake Wilderness Paddle",
-    badge: "Full Day Adventure",
+    badge: "Urban Explorer",
     image: "/vembanad_tour.webp",
-    desc: "Explore the open waters and peaceful beauty of Kerala’s iconic backwater landscapes."
+    desc: "Explore the vibrant waterways surrounding Kochi and discover the unique blend of urban life and natural beauty. A refreshing perspective of the city from the water."
   },
   {
-    title: "Kadamakkudy Island Explorer",
+    title: "Village Ride",
+    price: "₹450",
+    subPrice: "per person",
     badge: "Countryside Escape",
     image: "/kadamakkudy_tour.webp",
-    desc: "Discover hidden island villages, quiet waters, and authentic countryside experiences."
+    desc: "Journey through authentic village canals, coconut groves, and peaceful countryside scenery. Experience the traditional charm and everyday life of Kerala's backwater communities."
   }
 ];
 
