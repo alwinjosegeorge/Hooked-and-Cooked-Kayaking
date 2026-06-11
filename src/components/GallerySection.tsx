@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Maximize2, X } from 'lucide-react';
 
@@ -115,6 +115,29 @@ export default function GallerySection() {
     ? galleryItems 
     : galleryItems.filter(item => item.category === activeFilter);
 
+  const [columnsCount, setColumnsCount] = useState(2);
+
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1280) { // xl
+        setColumnsCount(4);
+      } else if (width >= 1024) { // lg
+        setColumnsCount(3);
+      } else {
+        setColumnsCount(2);
+      }
+    };
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
+
+  const columns = Array.from({ length: columnsCount }, () => [] as GalleryItem[]);
+  filteredItems.forEach((item, idx) => {
+    columns[idx % columnsCount].push(item);
+  });
+
   return (
     <section id="gallery" className="relative py-12 md:py-24 bg-[#F4EBDB] overflow-hidden select-none text-[#07191d]">
       
@@ -159,55 +182,54 @@ export default function GallerySection() {
             );
           })}
         </div>
-        {/* True CSS Columns Masonry (Zero Image Cropping) */}
-        <motion.div 
-          layout={isMobileDevice ? false : true} 
-          className="columns-2 lg:columns-3 xl:columns-4 gap-4 sm:gap-6 max-w-6xl mx-auto [column-fill:_balance]"
-        >
-          <AnimatePresence mode={isMobileDevice ? "wait" : "popLayout"}>
-            {filteredItems.map((item, idx) => (
-              <motion.div
-                key={item.id}
-                layout={isMobileDevice ? false : true}
-                initial={{ opacity: 0, y: 18, scale: 0.98 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-25px" }}
-                exit={isMobileDevice ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.5, ease: "easeOut", delay: isMobileDevice ? (idx % 2) * 0.04 : idx * 0.03 }}
-                className="break-inside-avoid mb-4 sm:mb-6 relative overflow-hidden rounded-[16px] sm:rounded-[24px] border border-[#e2ecee] bg-white group hover:shadow-[0_15px_40px_rgba(7,25,29,0.06)] hover:translate-y-[-4px] transition-all duration-500 cursor-pointer"
-                onClick={() => setSelectedImage(item)}
-              >
-                {/* Image - rendered in full native dimensions with zero cropping */}
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  width={item.width}
-                  height={item.height}
-                  className="w-full h-auto block object-contain transition-transform duration-1000 ease-out group-hover:scale-105"
-                  loading="lazy"
-                  decoding="async"
-                />
+        <div className="flex gap-4 sm:gap-6 max-w-6xl mx-auto items-start">
+          {columns.map((colItems, colIdx) => (
+            <div key={colIdx} className="flex flex-col gap-4 sm:gap-6 flex-1">
+              <AnimatePresence mode="popLayout">
+                {colItems.map((item, idx) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-25px" }}
+                    exit={isMobileDevice ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.5, ease: "easeOut", delay: isMobileDevice ? (idx % 2) * 0.04 : idx * 0.03 }}
+                    className="relative overflow-hidden rounded-[16px] sm:rounded-[24px] border border-[#e2ecee] bg-white group hover:shadow-[0_15px_40px_rgba(7,25,29,0.06)] hover:translate-y-[-4px] transition-all duration-500 cursor-pointer"
+                    onClick={() => setSelectedImage(item)}
+                  >
+                    {/* Image - rendered in full native dimensions with zero cropping */}
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      width={item.width}
+                      height={item.height}
+                      className="w-full h-auto block object-contain transition-transform duration-1000 ease-out group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                    />
 
-                {/* Cinematic Glass Hover Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-3 sm:p-6 text-white text-left">
-                  <div className="backdrop-blur-md bg-white/10 border border-white/20 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl flex items-center justify-between shadow-2xl w-full">
-                    <div>
-                      <span className="text-[8px] font-sans font-extrabold tracking-[0.2em] text-glacier-cyan uppercase block mb-0.5">
-                        {item.category}
-                      </span>
-                      <h3 className="text-[10px] sm:text-sm font-bold font-sans tracking-wide text-white leading-tight">
-                        {item.title}
-                      </h3>
+                    {/* Cinematic Glass Hover Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-3 sm:p-6 text-white text-left">
+                      <div className="backdrop-blur-md bg-white/10 border border-white/20 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl flex items-center justify-between shadow-2xl w-full">
+                        <div>
+                          <span className="text-[8px] font-sans font-extrabold tracking-[0.2em] text-glacier-cyan uppercase block mb-0.5">
+                            {item.category}
+                          </span>
+                          <h3 className="text-[10px] sm:text-sm font-bold font-sans tracking-wide text-white leading-tight">
+                            {item.title}
+                          </h3>
+                        </div>
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border border-white/20 bg-white/10 flex items-center justify-center shrink-0">
+                          <Maximize2 size={10} className="text-white" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border border-white/20 bg-white/10 flex items-center justify-center shrink-0">
-                      <Maximize2 size={10} className="text-white" />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Full-Screen Glass Lightbox Modal */}
