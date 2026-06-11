@@ -32,7 +32,7 @@ const expeditions = [
     duration: "3 Days / 2 Nights",
     location: "Kadambrayar Countryside",
     temperature: "24°C to 32°C",
-    image: "/mangrove_tour.webp",
+    image: "/sunrise_tour.webp",
     description: "Deep wilderness river kayaking through tranquil country canals. Winding past local villages, lush paddy fields, and historic coconut groves.",
     highlights: [
       "Camp under swaying coconut palms",

@@ -12,7 +12,7 @@ const popularTours = [
     price: "₹450",
     subPrice: "per person",
     badge: "Morning Special",
-    image: "/mangrove_tour.webp",
+    image: "/sunrise_tour.webp",
     desc: "Start your day gliding through calm backwaters as the rising sun paints the sky. Experience peaceful waterways, birdsong, and the refreshing beauty of Kerala's morning landscapes."
   },
   {

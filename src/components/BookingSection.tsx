@@ -17,7 +17,7 @@ const ROUTES = [
     id: 'kadambrayar',
     name: 'Kadambrayar River Expedition',
     desc: 'Glide through pristine mangrove forests during sunrise.',
-    image: '/mangrove_tour.webp',
+    image: '/sunrise_tour.webp',
   },
   {
     id: 'vembanad',
