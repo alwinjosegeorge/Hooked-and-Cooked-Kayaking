@@ -102,54 +102,116 @@ export default function BookingSection({
       return;
     }
 
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SxPzJH8enhojon', // Configure via Vercel env variable, defaults to Test API Key
-      amount: totalPrice * 100, // Amount in paise (1 INR = 100 Paise)
-      currency: 'INR',
-      name: 'Hooked & Cooked',
-      description: `${selectedRouteObj?.name || 'Kayak Expedition'} - ${getKayakTypeDisplay(form.kayakType)} - ${form.guests} Guests`,
-      image: '/logo.webp',
-      handler: async function () {
-        // Real checkout payment success callback
-        const res = onAddBooking({
-          date: form.date,
-          route: form.route,
-          slot: form.slot,
-          kayakType: form.kayakType,
-          guests: form.guests,
+    try {
+      // 1. Create order on backend first
+      const orderRes = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: totalPrice * 100, // in paise
+          currency: 'INR',
+          receipt: `receipt_${Date.now()}`
+        }),
+      });
+
+      if (!orderRes.ok) {
+        const errData = await orderRes.json();
+        alert(`Failed to create payment order: ${errData.error || 'Server error'}`);
+        setPaying(false);
+        return;
+      }
+
+      const orderData = await orderRes.json();
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_T0Q2GWmqdWUe0D',
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'Hooked & Cooked',
+        description: `${selectedRouteObj?.name || 'Kayak Expedition'} - ${getKayakTypeDisplay(form.kayakType)} - ${form.guests} Guests`,
+        image: '/logo.webp',
+        order_id: orderData.order_id,
+        handler: async function (response: any) {
+          try {
+            // 2. Verify signature on backend
+            const verifyRes = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+
+            if (!verifyRes.ok) {
+              const errData = await verifyRes.json();
+              alert(`Payment verification failed: ${errData.error || 'Signature mismatch'}`);
+              setPaying(false);
+              return;
+            }
+
+            // Real checkout payment success callback
+            const res = onAddBooking({
+              date: form.date,
+              route: form.route,
+              slot: form.slot,
+              kayakType: form.kayakType,
+              guests: form.guests,
+              name: form.name,
+              email: form.email,
+              phone: form.phone,
+              status: 'Confirmed',
+              paymentStatus: 'Paid',
+              source: 'Online',
+              amount: totalPrice
+            });
+            const newBooking = res instanceof Promise ? await res : res;
+            setCreatedBooking(newBooking);
+            setPaying(false);
+            setSubmitted(true);
+          } catch (err: any) {
+            console.error('Error during signature verification:', err);
+            alert('An error occurred while verifying the payment. Please contact support.');
+            setPaying(false);
+          }
+        },
+        prefill: {
           name: form.name,
           email: form.email,
-          phone: form.phone,
-          status: 'Confirmed',
-          paymentStatus: 'Paid',
-          source: 'Online',
-          amount: totalPrice
-        });
-        const newBooking = res instanceof Promise ? await res : res;
-        setCreatedBooking(newBooking);
-        setPaying(false);
-        setSubmitted(true);
-      },
-      prefill: {
-        name: form.name,
-        email: form.email,
-        contact: form.phone
-      },
-      notes: {
-        address: 'Kadambrayar Boat Club, Kochi'
-      },
-      theme: {
-        color: '#0D0D0D' // Matching brand dark color
-      },
-      modal: {
-        ondismiss: function () {
-          setPaying(false);
+          contact: form.phone
+        },
+        notes: {
+          address: 'Kadambrayar Boat Club, Kochi'
+        },
+        theme: {
+          color: '#0D0D0D'
+        },
+        modal: {
+          ondismiss: function () {
+            setPaying(false);
+          }
         }
-      }
-    };
+      };
 
-    const rzp = new (window as any).Razorpay(options);
-    rzp.open();
+      const rzp = new (window as any).Razorpay(options);
+
+      // Handle payment failure event
+      rzp.on('payment.failed', function (response: any) {
+        alert(`Payment failed: ${response.error.description || 'Unknown error'}`);
+        setPaying(false);
+      });
+
+      rzp.open();
+    } catch (err: any) {
+      console.error('Error creating payment:', err);
+      alert('An error occurred while initiating the payment process. Please try again.');
+      setPaying(false);
+    }
   };
   
   // Accordion active step in Step 1 (1: Date, 2: Slot, 3: Kayak, 4: Guests)
