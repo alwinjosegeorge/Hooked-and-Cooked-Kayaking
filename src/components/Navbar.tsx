@@ -35,7 +35,7 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
     { name: 'About', href: '#expeditions' },
     { name: 'Gallery', href: '#gallery' },
     { name: 'Reviews', href: '#reviews' },
-    { name: 'FAQ', href: '#faq-section' },
+    { name: 'FAQ', href: '/faq' },
     { name: 'Book', href: '#booking-section' }
   ];
 
@@ -69,6 +69,8 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
           scrollToTarget();
         }
       }
+    } else if (href.startsWith('/')) {
+      setMobileMenuOpen(false);
     }
   };
 
@@ -135,6 +137,14 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
       observer.disconnect();
     };
   }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    if (currentPath.startsWith('/faq')) {
+      setActiveSection('FAQ');
+    } else if (currentPath === '/') {
+      setActiveSection('Home');
+    }
+  }, [currentPath]);
 
   // Determine theme mode (dark vs light sand)
   const isDarkTheme = isHome;
