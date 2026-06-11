@@ -61,7 +61,7 @@ const reviewsData: GoogleReview[] = [
     date: 'a month ago',
     isLocalGuide: true,
     reviewsCount: 115,
-    photos: ['/IMG_8476.webp', '/IMG_8477.webp'],
+    photos: ['/IMG_8481.webp', '/IMG_8477.webp'],
     text: 'Good service, affordable too. Really enjoyed the scenery. Perfect spot for group kayaking! Definitely would recommend a try.',
     tags: ['Sunset View']
   },

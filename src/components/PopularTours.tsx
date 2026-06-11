@@ -28,7 +28,7 @@ const popularTours = [
     price: "₹450",
     subPrice: "per person",
     badge: "Urban Explorer",
-    image: "/vembanad_tour.webp",
+    image: "/kadamakkudy_tour.webp",
     desc: "Explore the vibrant waterways surrounding Kochi and discover the unique blend of urban life and natural beauty. A refreshing perspective of the city from the water."
   },
   {
@@ -36,7 +36,7 @@ const popularTours = [
     price: "₹450",
     subPrice: "per person",
     badge: "Countryside Escape",
-    image: "/kadamakkudy_tour.webp",
+    image: "/vembanad_tour.webp",
     desc: "Journey through authentic village canals, coconut groves, and peaceful countryside scenery. Experience the traditional charm and everyday life of Kerala's backwater communities."
   }
 ];

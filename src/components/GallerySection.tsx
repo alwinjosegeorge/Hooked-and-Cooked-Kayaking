@@ -66,15 +66,6 @@ export default function GallerySection() {
     },
     {
       id: 6,
-      category: 'sunsets',
-      title: "Peaceful Twilight Cruise",
-      image: "/IMG_8476.webp",
-      span: "aspect-[3/4]",
-      width: 600,
-      height: 800
-    },
-    {
-      id: 7,
       category: 'guests',
       title: "Our Furry Co-pilot",
       image: "/IMG_8477.webp",
@@ -83,13 +74,40 @@ export default function GallerySection() {
       height: 500
     },
     {
-      id: 8,
+      id: 7,
       category: 'expeditions',
       title: "Father & Son Sunset Paddle",
       image: "/IMG_8478.webp",
       span: "aspect-[4/3]",
       width: 800,
       height: 600
+    },
+    {
+      id: 8,
+      category: 'expeditions',
+      title: "Our Waterside Basecamp",
+      image: "/IMG_8479.webp",
+      span: "aspect-[4/3]",
+      width: 1448,
+      height: 1086
+    },
+    {
+      id: 9,
+      category: 'mangroves',
+      title: "Mirror Calm Canal Path",
+      image: "/IMG_8480.webp",
+      span: "aspect-[4/3]",
+      width: 1448,
+      height: 1086
+    },
+    {
+      id: 10,
+      category: 'sunsets',
+      title: "Twilight Magic at the Base",
+      image: "/IMG_8481.webp",
+      span: "aspect-[3/2]",
+      width: 1537,
+      height: 1023
     }
   ];
 
