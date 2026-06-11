@@ -47,15 +47,26 @@ export default function Navbar({ currentPath = '/' }: NavbarProps) {
         return;
       }
       e.preventDefault();
+      
+      const wasMobileMenuOpen = mobileMenuOpen;
       setMobileMenuOpen(false);
+      
       const targetId = href.substring(1);
       const el = document.getElementById(targetId || 'hero');
       if (el) {
-        const lenisInstance = (window as any).lenis;
-        if (lenisInstance && typeof lenisInstance.scrollTo === 'function') {
-          lenisInstance.scrollTo(el, { duration: 0.9 });
+        const scrollToTarget = () => {
+          const lenisInstance = (window as any).lenis;
+          if (lenisInstance && typeof lenisInstance.scrollTo === 'function') {
+            lenisInstance.scrollTo(el, { duration: 0.9 });
+          } else {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        };
+
+        if (wasMobileMenuOpen) {
+          setTimeout(scrollToTarget, 300);
         } else {
-          el.scrollIntoView({ behavior: 'smooth' });
+          scrollToTarget();
         }
       }
     }
