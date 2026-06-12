@@ -260,17 +260,17 @@ export default function ControlHub({
   
   // Total Revenue calculation
   const totalRevenue = bookings
-    .filter(b => b.paymentStatus === 'Paid')
+    .filter(b => b.status !== 'Cancelled' && b.paymentStatus === 'Paid')
     .reduce((sum, b) => sum + b.amount, 0);
 
   // Today's revenue calculation
   const todayRevenue = bookings
-    .filter(b => b.date === selectedOpsDate && b.paymentStatus === 'Paid')
+    .filter(b => b.date === selectedOpsDate && b.status !== 'Cancelled' && b.paymentStatus === 'Paid')
     .reduce((sum, b) => sum + b.amount, 0);
 
   // Month revenue calculation (For June 2026)
   const monthRevenue = bookings
-    .filter(b => b.date.startsWith('2026-06') && b.paymentStatus === 'Paid')
+    .filter(b => b.date.startsWith('2026-06') && b.status !== 'Cancelled' && b.paymentStatus === 'Paid')
     .reduce((sum, b) => sum + b.amount, 0);
 
   const getSlotInventory = (dateStr: string, slotTime: string) => {
@@ -326,7 +326,7 @@ export default function ControlHub({
       const existing = map.get(key);
       if (existing) {
         existing.totalBookings += 1;
-        if (b.paymentStatus === 'Paid') {
+        if (b.status !== 'Cancelled' && b.paymentStatus === 'Paid') {
           existing.totalSpent += b.amount;
         }
       } else {
@@ -335,7 +335,7 @@ export default function ControlHub({
           email: b.email || 'N/A',
           phone: b.phone,
           totalBookings: 1,
-          totalSpent: b.paymentStatus === 'Paid' ? b.amount : 0,
+          totalSpent: (b.status !== 'Cancelled' && b.paymentStatus === 'Paid') ? b.amount : 0,
           source: b.source
         });
       }
@@ -706,7 +706,7 @@ export default function ControlHub({
     const matchSearch = 
       b.id.toLowerCase().includes(paymentsSearch.toLowerCase()) ||
       b.name.toLowerCase().includes(paymentsSearch.toLowerCase());
-    return matchSearch && b.paymentStatus === 'Paid';
+    return matchSearch && b.status !== 'Cancelled' && b.paymentStatus === 'Paid';
   });
 
   const paginatedPayments = filteredPayments.slice(
