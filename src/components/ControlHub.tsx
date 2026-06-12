@@ -2441,7 +2441,7 @@ export default function ControlHub({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-gray-500 uppercase">Email Address</label>
                   <input 
@@ -2462,6 +2462,24 @@ export default function ControlHub({
                     onChange={(e) => setBookingForm(prev => ({ ...prev, date: e.target.value }))}
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#0D2B35]"
                   />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Booking Time Slot *</label>
+                  <select 
+                    value={bookingForm.slot}
+                    onChange={(e) => setBookingForm(prev => ({ ...prev, slot: e.target.value }))}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs bg-white focus:outline-none focus:border-[#0D2B35]"
+                  >
+                    {SLOTS.map(time => {
+                      const { remainingGuests } = getSlotInventory(bookingForm.date, time);
+                      return (
+                        <option key={time} value={time}>
+                          {time} ({remainingGuests} seats left)
+                        </option>
+                      );
+                    })}
+                  </select>
                 </div>
               </div>
 
