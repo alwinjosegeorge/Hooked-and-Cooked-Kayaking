@@ -19,7 +19,9 @@ import {
   Menu, 
   ChevronLeft, 
   ChevronRight, 
-  Sparkles 
+  Sparkles,
+  Megaphone,
+  Send
 } from 'lucide-react';
 import type { Booking, ClosedSlot, Customer } from '../types';
 import QRCode from 'qrcode';
@@ -80,8 +82,8 @@ export default function ControlHub({
   onConfirmCheckIn,
   onNavigate
 }: ControlHubProps) {
-  // Navigation active tab: 'dashboard', 'bookings', 'customers', 'payments', 'overrides', 'scanner'
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'customers' | 'payments' | 'overrides' | 'scanner'>('dashboard');
+  // Navigation active tab: 'dashboard', 'bookings', 'customers', 'payments', 'overrides', 'scanner', 'broadcast'
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'customers' | 'payments' | 'overrides' | 'scanner' | 'broadcast'>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Modals state
@@ -105,6 +107,12 @@ export default function ControlHub({
   const [paymentsFilterDate, setPaymentsFilterDate] = useState<string>('');
   const [paymentsPage, setPaymentsPage] = useState(1);
   const paymentsPerPage = 8;
+
+  const [broadcastSearch, setBroadcastSearch] = useState('');
+  const [broadcastMessage, setBroadcastMessage] = useState('Hi {name} 👋\n\nWe have exciting new offers for you at Hooked & Cooked! 🚣🍲\n\nBook your slot today and enjoy our premium guided backwater tours!\n\nWebsite: https://visitkadambrayar.com');
+  const [sentNumbers, setSentNumbers] = useState<Record<string, boolean>>({});
+  const [broadcastPage, setBroadcastPage] = useState(1);
+  const broadcastPerPage = 8;
 
   // Manual booking kayak counts and type selection
   const [manualBookingType, setManualBookingType] = useState<'single' | 'double' | 'mixed'>('single');
@@ -720,6 +728,59 @@ export default function ControlHub({
 
   const paymentsTotalPages = Math.ceil(filteredPayments.length / paymentsPerPage) || 1;
 
+  // Broadcast Campaign Target Directory logic (de-duplicated contacts)
+  const broadcastList = (() => {
+    const map = new Map<string, { name: string; phone: string }>();
+    bookings.forEach(b => {
+      if (b.status !== 'Cancelled') {
+        const phoneKey = b.phone ? b.phone.trim() : '';
+        if (phoneKey) {
+          const existing = map.get(phoneKey);
+          if (!existing) {
+            map.set(phoneKey, {
+              name: b.name.trim(),
+              phone: b.phone.trim()
+            });
+          }
+        }
+      }
+    });
+    return Array.from(map.values());
+  })();
+
+  const filteredBroadcastList = broadcastList.filter(c => {
+    return c.name.toLowerCase().includes(broadcastSearch.toLowerCase()) ||
+      c.phone.includes(broadcastSearch);
+  });
+
+  const paginatedBroadcastList = filteredBroadcastList.slice(
+    (broadcastPage - 1) * broadcastPerPage,
+    broadcastPage * broadcastPerPage
+  );
+
+  const broadcastTotalPages = Math.ceil(filteredBroadcastList.length / broadcastPerPage) || 1;
+
+  const handleSendBroadcastMessage = (phone: string, name: string) => {
+    const personalizedMessage = broadcastMessage.replace(/{name}/g, name);
+    
+    let cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      cleaned = '91' + cleaned;
+    }
+    
+    // Mark as sent locally
+    setSentNumbers(prev => ({ ...prev, [phone]: true }));
+
+    const ua = navigator.userAgent.toLowerCase();
+    const isAndroid = ua.indexOf('android') > -1;
+
+    if (isAndroid) {
+      window.location.href = `intent://send?phone=${cleaned}&text=${encodeURIComponent(personalizedMessage)}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end`;
+    } else {
+      window.open(`https://wa.me/${cleaned}?text=${encodeURIComponent(personalizedMessage)}`, '_blank');
+    }
+  };
+
   // Selected Booking expanded object
 
   const handleSendWhatsApp = (b: Booking) => {
@@ -989,6 +1050,7 @@ export default function ControlHub({
               { id: 'payments', label: 'Payments View', icon: CreditCard },
               { id: 'overrides', label: 'Slot Overrides', icon: CalendarRange },
               { id: 'scanner', label: 'Ticket Scanner', icon: QrCode },
+              { id: 'broadcast', label: 'Broadcast', icon: Megaphone },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -2427,6 +2489,185 @@ export default function ControlHub({
 
               </div>
 
+            </div>
+          )}
+
+          {/* ───────────────── BROADCAST VIEW TAB ───────────────── */}
+          {activeTab === 'broadcast' && (
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                
+                {/* Left Column: Template Composer & Live Preview (2 cols) */}
+                <div className="lg:col-span-2 space-y-6">
+                  
+                  {/* Composer Card */}
+                  <div className="bg-white rounded-3xl p-6 border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] space-y-4">
+                    <div>
+                      <h3 className="text-lg font-black text-gray-900 font-sans flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-[#C8A86B]" />
+                        <span>Campaign Composer</span>
+                      </h3>
+                      <p className="text-xs text-gray-400 font-semibold mt-1">Create promotional template offers for your clients</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase block">Message Template</label>
+                      <textarea
+                        value={broadcastMessage}
+                        onChange={(e) => setBroadcastMessage(e.target.value)}
+                        rows={8}
+                        placeholder="Write your campaign message here..."
+                        className="w-full border border-gray-200 rounded-xl p-4 text-xs bg-[#E8E3D8]/20 focus:outline-none focus:border-[#0D2B35] font-sans resize-none"
+                      />
+                    </div>
+
+                    {/* Placeholder Tips */}
+                    <div className="bg-blue-50/50 border border-blue-100/30 rounded-2xl p-4 space-y-2 text-[10px] leading-relaxed text-gray-500">
+                      <div className="font-extrabold text-[#0D2B35] uppercase tracking-wide">💡 Personalization Tag</div>
+                      <div>Use <strong>{`{name}`}</strong> anywhere in your message to dynamically insert each customer's name. E.g. <em>"Hi {`{name}`}..."</em></div>
+                    </div>
+                  </div>
+
+                  {/* Real-time Preview Card */}
+                  <div className="bg-white rounded-3xl p-6 border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] space-y-4">
+                    <h4 className="text-xs font-black text-gray-900 uppercase tracking-wider">Live Message Preview</h4>
+                    <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-2xl p-4 relative font-sans text-xs text-gray-800 whitespace-pre-wrap shadow-inner min-h-[120px]">
+                      {/* WhatsApp Chat Bubble Style header */}
+                      <div className="text-[9px] font-bold text-[#00a884] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#00a884] animate-pulse" />
+                        WhatsApp Message Preview (Sample: Arun Kumar)
+                      </div>
+                      <div className="text-gray-900 font-medium">
+                        {broadcastMessage.replace(/{name}/g, 'Arun Kumar')}
+                      </div>
+                    </div>
+                    
+                    <div className="text-[9px] text-gray-400 leading-normal">
+                      ⚠️ Note: Media files (images) cannot be auto-attached to standard deep links. If you wish to send an offer image, you can manually select and attach the image in the WhatsApp chat window once it launches.
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Right Column: Audience Queue directory list (3 cols) */}
+                <div className="lg:col-span-3 space-y-6">
+                  
+                  {/* Stats & Search */}
+                  <div className="bg-white p-6 rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div className="relative w-full md:w-64">
+                      <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input 
+                        type="text" 
+                        placeholder="Search Audience Contacts..."
+                        value={broadcastSearch}
+                        onChange={(e) => {
+                          setBroadcastSearch(e.target.value);
+                          setBroadcastPage(1);
+                        }}
+                        className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-full focus:outline-none focus:border-[#0D2B35] bg-[#E8E3D8]/40"
+                      />
+                    </div>
+
+                    {/* Stats counts */}
+                    <div className="flex gap-6 text-right self-stretch md:self-auto justify-between md:justify-end">
+                      <div>
+                        <span className="text-[10px] text-gray-400 uppercase font-black tracking-widest block">Total Audience</span>
+                        <span className="text-lg font-black text-gray-900 mt-0.5 block">{filteredBroadcastList.length}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-gray-400 uppercase font-black tracking-widest block">Pending</span>
+                        <span className="text-lg font-black text-amber-500 mt-0.5 block">
+                          {filteredBroadcastList.filter(c => !sentNumbers[c.phone]).length}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-gray-400 uppercase font-black tracking-widest block">Sent</span>
+                        <span className="text-lg font-black text-emerald-600 mt-0.5 block">
+                          {filteredBroadcastList.filter(c => sentNumbers[c.phone]).length}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Contacts List Grid */}
+                  <div className="bg-white rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
+                    <div className="divide-y divide-gray-100">
+                      {paginatedBroadcastList.length === 0 ? (
+                        <div className="text-center py-16 text-gray-400 font-semibold text-xs">
+                          No unique clients found matching search logs.
+                        </div>
+                      ) : (
+                        paginatedBroadcastList.map((c) => {
+                          const isSent = !!sentNumbers[c.phone];
+                          return (
+                            <div key={c.phone} className="p-4 flex justify-between items-center hover:bg-gray-50/50 transition duration-150">
+                              <div className="min-w-0">
+                                <span className="font-extrabold text-gray-900 text-sm block truncate max-w-[200px]">{c.name}</span>
+                                <span className="text-[10px] text-gray-400 font-mono mt-0.5 block">{c.phone}</span>
+                              </div>
+
+                              <div className="flex items-center gap-4">
+                                {/* Status badge */}
+                                <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${
+                                  isSent 
+                                    ? 'bg-emerald-100 text-emerald-800' 
+                                    : 'bg-amber-100 text-amber-800'
+                                }`}>
+                                  {isSent ? 'Sent' : 'Pending'}
+                                </span>
+
+                                <button
+                                  onClick={() => handleSendBroadcastMessage(c.phone, c.name)}
+                                  className={`px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                                    isSent
+                                      ? 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                      : 'bg-[#00a884] text-white hover:bg-[#00a884]/95'
+                                  }`}
+                                >
+                                  <Send className="w-3.5 h-3.5" />
+                                  <span>{isSent ? 'Resend' : 'Send'}</span>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Pagination Footer */}
+                    {filteredBroadcastList.length > 0 && (
+                      <div className="bg-gray-50/50 border-t border-gray-100 px-6 py-4 flex justify-between items-center">
+                        <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">
+                          Page {broadcastPage} of {broadcastTotalPages}
+                        </span>
+
+                        <div className="flex gap-2">
+                          <button
+                            disabled={broadcastPage === 1}
+                            onClick={() => setBroadcastPage(prev => Math.max(1, prev - 1))}
+                            className={`p-1.5 rounded-lg border border-gray-200 bg-white transition ${
+                              broadcastPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'
+                            }`}
+                          >
+                            <ChevronLeft className="w-4 h-4 text-[#0D2B35]" />
+                          </button>
+                          <button
+                            disabled={broadcastPage === broadcastTotalPages}
+                            onClick={() => setBroadcastPage(prev => Math.min(broadcastTotalPages, prev + 1))}
+                            className={`p-1.5 rounded-lg border border-gray-200 bg-white transition ${
+                              broadcastPage === broadcastTotalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'
+                            }`}
+                          >
+                            <ChevronRight className="w-4 h-4 text-[#0D2B35]" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+
+              </div>
             </div>
           )}
 
