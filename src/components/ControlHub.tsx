@@ -113,6 +113,71 @@ export default function ControlHub({
   const [sentNumbers, setSentNumbers] = useState<Record<string, boolean>>({});
   const [broadcastPage, setBroadcastPage] = useState(1);
   const broadcastPerPage = 8;
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('');
+  const [activeWizardIndex, setActiveWizardIndex] = useState<number | null>(null);
+  const [isCopyingImage, setIsCopyingImage] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (uploadedImageUrl) {
+        URL.revokeObjectURL(uploadedImageUrl);
+      }
+    };
+  }, [uploadedImageUrl]);
+
+  const copyImageToClipboard = async () => {
+    if (!uploadedImageUrl) return;
+    setIsCopyingImage(true);
+    try {
+      const response = await fetch(uploadedImageUrl);
+      const blob = await response.blob();
+      
+      if (blob.type !== 'image/png') {
+        const img = new Image();
+        img.src = uploadedImageUrl;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob(async (pngBlob) => {
+            if (pngBlob) {
+              try {
+                await navigator.clipboard.write([
+                  new ClipboardItem({
+                    'image/png': pngBlob
+                  })
+                ]);
+                alert('Flyer image copied to clipboard! You can paste it directly in the WhatsApp chat window.');
+              } catch (e: any) {
+                console.error(e);
+                alert('Clipboard write blocked: ' + e.message);
+              }
+            }
+          }, 'image/png');
+        }
+      } else {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'image/png': blob
+          })
+        ]);
+        alert('Flyer image copied to clipboard! You can paste it directly in the WhatsApp chat window.');
+      }
+    } catch (err: any) {
+      console.error('Failed to copy image: ', err);
+      alert('Error copying image: ' + err.message);
+    } finally {
+      setIsCopyingImage(false);
+    }
+  };
 
   // Manual booking kayak counts and type selection
   const [manualBookingType, setManualBookingType] = useState<'single' | 'double' | 'mixed'>('single');
@@ -2521,6 +2586,61 @@ export default function ControlHub({
                       />
                     </div>
 
+                    {/* Image Flyer Uploader */}
+                    <div className="space-y-2 border-t border-gray-100 pt-4">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase block">Attach Campaign Flyer / Image</label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
+                            setUploadedImage(file);
+                            if (uploadedImageUrl) {
+                              URL.revokeObjectURL(uploadedImageUrl);
+                            }
+                            if (file) {
+                              setUploadedImageUrl(URL.createObjectURL(file));
+                            } else {
+                              setUploadedImageUrl('');
+                            }
+                          }}
+                          className="text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-[#0D2B35] file:text-white hover:file:bg-[#0D2B35]/90 cursor-pointer"
+                        />
+                        {uploadedImage && (
+                          <button
+                            onClick={() => {
+                              setUploadedImage(null);
+                              if (uploadedImageUrl) {
+                                URL.revokeObjectURL(uploadedImageUrl);
+                              }
+                              setUploadedImageUrl('');
+                            }}
+                            className="text-xs text-rose-500 font-extrabold hover:underline"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      
+                      {uploadedImageUrl && (
+                        <div className="mt-3 relative border border-gray-200/50 rounded-2xl overflow-hidden group bg-gray-50 p-2">
+                          <img
+                            src={uploadedImageUrl}
+                            alt="Flyer Preview"
+                            className="max-h-36 max-w-full object-contain mx-auto rounded-lg"
+                          />
+                          <button
+                            onClick={copyImageToClipboard}
+                            disabled={isCopyingImage}
+                            className="w-full mt-2 py-2 bg-[#0D2B35] hover:bg-[#0D2B35]/90 text-white rounded-xl text-[10px] font-black transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          >
+                            {isCopyingImage ? 'Copying...' : 'Copy Image to Clipboard'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
                     {/* Placeholder Tips */}
                     <div className="bg-blue-50/50 border border-blue-100/30 rounded-2xl p-4 space-y-2 text-[10px] leading-relaxed text-gray-500">
                       <div className="font-extrabold text-[#0D2B35] uppercase tracking-wide">💡 Personalization Tag</div>
@@ -2554,18 +2674,29 @@ export default function ControlHub({
                   
                   {/* Stats & Search */}
                   <div className="bg-white p-6 rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="relative w-full md:w-64">
-                      <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input 
-                        type="text" 
-                        placeholder="Search Audience Contacts..."
-                        value={broadcastSearch}
-                        onChange={(e) => {
-                          setBroadcastSearch(e.target.value);
-                          setBroadcastPage(1);
-                        }}
-                        className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-full focus:outline-none focus:border-[#0D2B35] bg-[#E8E3D8]/40"
-                      />
+                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-stretch sm:items-center">
+                      <div className="relative w-full sm:w-64">
+                        <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input 
+                          type="text" 
+                          placeholder="Search Audience Contacts..."
+                          value={broadcastSearch}
+                          onChange={(e) => {
+                            setBroadcastSearch(e.target.value);
+                            setBroadcastPage(1);
+                          }}
+                          className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-full focus:outline-none focus:border-[#0D2B35] bg-[#E8E3D8]/40"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        disabled={filteredBroadcastList.length === 0}
+                        onClick={() => setActiveWizardIndex(0)}
+                        className="flex items-center gap-1.5 bg-[#0D2B35] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#0D2B35]/90 transition justify-center cursor-pointer shadow-sm disabled:opacity-50"
+                      >
+                        <Sparkles className="w-4 h-4 text-[#C8A86B]" />
+                        <span>Launch Wizard</span>
+                      </button>
                     </div>
 
                     {/* Stats counts */}
@@ -2676,6 +2807,133 @@ export default function ControlHub({
 
       {/* ──── POPUPS & MODALS DIALOGS LAYER ──── */}
       
+      {/* Modal: Broadcast Wizard */}
+      {activeWizardIndex !== null && filteredBroadcastList[activeWizardIndex] && (() => {
+        const currentCustomer = filteredBroadcastList[activeWizardIndex];
+        const isSent = !!sentNumbers[currentCustomer.phone];
+        const personalizedText = broadcastMessage.replace(/{name}/g, currentCustomer.name);
+        
+        return (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
+              <button 
+                onClick={() => setActiveWizardIndex(null)}
+                className="absolute top-6 right-6 p-1 rounded-full text-gray-400 hover:bg-gray-100 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#C8A86B] block">
+                  Campaign Broadcast Queue
+                </span>
+                <h3 className="text-lg font-black text-gray-900 flex items-center gap-2">
+                  <span>Contact {activeWizardIndex + 1} of {filteredBroadcastList.length}</span>
+                </h3>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                <div 
+                  className="bg-emerald-500 h-1.5 rounded-full transition-all duration-300"
+                  style={{ width: `${((activeWizardIndex + 1) / filteredBroadcastList.length) * 100}%` }}
+                />
+              </div>
+
+              {/* Customer Box */}
+              <div className="bg-gray-50 border border-gray-150 rounded-2xl p-4 space-y-1 text-xs">
+                <div className="font-extrabold text-gray-900 text-sm">{currentCustomer.name}</div>
+                <div className="text-gray-500 font-mono">{currentCustomer.phone}</div>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[10px] text-gray-400 uppercase font-black">Status:</span>
+                  <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${
+                    isSent 
+                      ? 'bg-emerald-100 text-emerald-800' 
+                      : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {isSent ? 'Sent' : 'Pending'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Message preview block */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-gray-500 uppercase block">Personalized Text</label>
+                <div className="bg-emerald-50/30 border border-emerald-100/50 rounded-2xl p-4 text-xs font-sans text-gray-800 whitespace-pre-wrap max-h-36 overflow-y-auto">
+                  {personalizedText}
+                </div>
+              </div>
+
+              {/* Flyer actions helper */}
+              {uploadedImageUrl && (
+                <div className="bg-[#E8E3D8]/20 border border-gray-200/50 rounded-2xl p-3 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src={uploadedImageUrl} 
+                      alt="Mini Flyer" 
+                      className="w-10 h-10 object-cover rounded-md" 
+                    />
+                    <div className="text-[10px] text-gray-500 leading-tight">
+                      <span className="font-extrabold text-gray-800 block">Offer flyer attached</span>
+                      Copy to paste in chat
+                    </div>
+                  </div>
+                  <button
+                    onClick={copyImageToClipboard}
+                    disabled={isCopyingImage}
+                    className="px-3 py-1.5 bg-[#0D2B35] hover:bg-[#0D2B35]/90 text-white rounded-lg text-[10px] font-extrabold transition cursor-pointer disabled:opacity-50"
+                  >
+                    {isCopyingImage ? 'Copying...' : 'Copy Image'}
+                  </button>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    // Open WhatsApp & advance
+                    handleSendBroadcastMessage(currentCustomer.phone, currentCustomer.name);
+                    if (activeWizardIndex < filteredBroadcastList.length - 1) {
+                      setActiveWizardIndex(prev => (prev !== null ? prev + 1 : null));
+                    } else {
+                      alert('Broadcast queue finished successfully!');
+                      setActiveWizardIndex(null);
+                    }
+                  }}
+                  className="w-full py-3 bg-[#00a884] hover:bg-[#00a884]/95 text-white rounded-xl text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Send WhatsApp</span>
+                </button>
+
+                <div className="flex gap-2">
+                  <button
+                    disabled={activeWizardIndex === 0}
+                    onClick={() => setActiveWizardIndex(prev => (prev !== null ? Math.max(0, prev - 1) : null))}
+                    className="flex-1 py-3 bg-gray-50 hover:bg-gray-100 text-[#0D2B35] border border-gray-200 rounded-xl text-xs font-black transition cursor-pointer disabled:opacity-40"
+                  >
+                    Prev
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (activeWizardIndex < filteredBroadcastList.length - 1) {
+                        setActiveWizardIndex(prev => (prev !== null ? prev + 1 : null));
+                      } else {
+                        setActiveWizardIndex(null);
+                      }
+                    }}
+                    className="flex-1 py-3 bg-gray-50 hover:bg-gray-100 text-[#0D2B35] border border-gray-200 rounded-xl text-xs font-black transition cursor-pointer"
+                  >
+                    {activeWizardIndex === filteredBroadcastList.length - 1 ? 'Finish' : 'Skip'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Modal: Manual Add Booking */}
       {showAddBookingModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
