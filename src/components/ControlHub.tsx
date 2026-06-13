@@ -102,6 +102,7 @@ export default function ControlHub({
   const customersPerPage = 8;
 
   const [paymentsSearch, setPaymentsSearch] = useState('');
+  const [paymentsFilterDate, setPaymentsFilterDate] = useState<string>('');
   const [paymentsPage, setPaymentsPage] = useState(1);
   const paymentsPerPage = 8;
 
@@ -706,8 +707,11 @@ export default function ControlHub({
     const matchSearch = 
       b.id.toLowerCase().includes(paymentsSearch.toLowerCase()) ||
       b.name.toLowerCase().includes(paymentsSearch.toLowerCase());
-    return matchSearch && b.status !== 'Cancelled' && b.paymentStatus === 'Paid';
+    const matchDate = !paymentsFilterDate || b.date === paymentsFilterDate;
+    return matchSearch && matchDate && b.status !== 'Cancelled' && b.paymentStatus === 'Paid';
   });
+
+  const filteredPaymentsTotal = filteredPayments.reduce((sum, b) => sum + b.amount, 0);
 
   const paginatedPayments = filteredPayments.slice(
     (paymentsPage - 1) * paymentsPerPage,
@@ -1898,25 +1902,49 @@ export default function ControlHub({
           {activeTab === 'payments' && (
             <div className="space-y-8">
               
-              <div className="flex justify-between items-center bg-white p-6 rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
-                <div className="relative w-80">
-                  <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white p-6 rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
+                
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full md:w-auto">
+                  {/* Search box */}
+                  <div className="relative w-full sm:w-64">
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input 
+                      type="text" 
+                      placeholder="Search Payments Ledger..."
+                      value={paymentsSearch}
+                      onChange={(e) => {
+                        setPaymentsSearch(e.target.value);
+                        setPaymentsPage(1);
+                      }}
+                      className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-full focus:outline-none focus:border-[#0D2B35] bg-[#E8E3D8]/40"
+                    />
+                  </div>
+
+                  {/* Date Picker */}
                   <input 
-                    type="text" 
-                    placeholder="Search Payments Ledger..."
-                    value={paymentsSearch}
+                    type="date"
+                    value={paymentsFilterDate}
                     onChange={(e) => {
-                      setPaymentsSearch(e.target.value);
+                      setPaymentsFilterDate(e.target.value);
                       setPaymentsPage(1);
                     }}
-                    className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-full focus:outline-none focus:border-[#0D2B35] bg-[#E8E3D8]/40"
+                    className="border border-gray-200 rounded-xl py-2 px-3 text-xs focus:outline-none focus:border-[#0D2B35] bg-white"
                   />
+                  
+                  {paymentsFilterDate && (
+                    <button 
+                      onClick={() => setPaymentsFilterDate('')}
+                      className="text-xs text-rose-500 hover:underline font-bold"
+                    >
+                      Clear Date
+                    </button>
+                  )}
                 </div>
 
-                <div className="text-right">
+                <div className="text-right w-full md:w-auto">
                   <span className="text-[10px] text-gray-400 uppercase font-black tracking-widest block">Operational Ledger Value</span>
                   <span className="text-lg font-black text-emerald-600 mt-0.5 block">
-                    ₹{totalRevenue.toLocaleString('en-IN')} Total Paid
+                    ₹{filteredPaymentsTotal.toLocaleString('en-IN')} Total Paid
                   </span>
                 </div>
               </div>
