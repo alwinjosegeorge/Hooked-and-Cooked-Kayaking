@@ -342,9 +342,28 @@ export default function ControlHub({
     .filter(b => b.date === selectedOpsDate && b.status !== 'Cancelled' && b.paymentStatus === 'Paid')
     .reduce((sum, b) => sum + b.amount, 0);
 
-  // Month revenue calculation (For June 2026)
+  // Get active month prefix (e.g., "2026-07") from selected operations date
+  const activeMonthPrefix = selectedOpsDate.substring(0, 7);
+
+  // Dynamic month label (e.g., "July 2026")
+  const activeMonthLabel = (() => {
+    if (!selectedOpsDate) return '';
+    const [year, month] = selectedOpsDate.split('-');
+    const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  })();
+
+  // Human-readable operations day (e.g., "July 4, 2026")
+  const formattedOpsDate = (() => {
+    if (!selectedOpsDate) return '';
+    const [year, month, day] = selectedOpsDate.split('-');
+    const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10));
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  })();
+
+  // Month revenue calculation dynamically filtered by selected month
   const monthRevenue = bookings
-    .filter(b => b.date.startsWith('2026-06') && b.status !== 'Cancelled' && b.paymentStatus === 'Paid')
+    .filter(b => b.date.startsWith(activeMonthPrefix) && b.status !== 'Cancelled' && b.paymentStatus === 'Paid')
     .reduce((sum, b) => sum + b.amount, 0);
 
   const getSlotInventory = (dateStr: string, slotTime: string) => {
@@ -1235,7 +1254,7 @@ export default function ControlHub({
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex bg-[#C8A86B]/10 border border-[#C8A86B]/20 rounded-xl px-4 py-2 items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-[#C8A86B] animate-pulse" />
-              <span className="text-xs font-bold text-[#C8A86B] font-mono">Operations Day: June 4, 2026</span>
+              <span className="text-xs font-bold text-[#C8A86B] font-mono">Operations Day: {formattedOpsDate}</span>
             </div>
             
             <div className="flex items-center gap-3">
@@ -1297,7 +1316,7 @@ export default function ControlHub({
                       ₹{monthRevenue.toLocaleString('en-IN')}
                     </span>
                     <span className="text-[10px] text-gray-400 font-bold block mt-2">
-                      Operations month of June 2026
+                      Operations month of {activeMonthLabel}
                     </span>
                   </div>
                 </div>
