@@ -29,6 +29,8 @@
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.js" },
+    { "source": "/onam", "destination": "https://onam-elegance.vercel.app/onam" },
+    { "source": "/onam/:path*", "destination": "https://onam-elegance.vercel.app/onam/:path*" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
