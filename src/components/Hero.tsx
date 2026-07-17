@@ -33,14 +33,15 @@ export default function Hero() {
       </video>
       {/* Background Video — Desktop: landscape, defer load until mobile video done */}
       <video
-        src="/IMG_8598.mp4"
         autoPlay
         loop
         muted
         playsInline
         preload="none"
         className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-95 hidden md:block transform-gpu will-change-transform"
-      />
+      >
+        <source src="https://res.cloudinary.com/dar4m0jyt/video/upload/f_auto,q_auto/IMG_8598_fuo3mp.mp4" type="video/mp4" />
+      </video>
       {/* Dark overlay matching the moody cinematic Scandinavian travel vibe */}
       <div className="absolute inset-0 z-0 bg-gradient-to-t from-abyss-black via-abyss-black/35 to-black/50" />
       <div className="absolute inset-0 z-0 bg-radial-gradient from-transparent via-transparent to-abyss-black/75" />
