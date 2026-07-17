@@ -31,7 +31,6 @@ export default function Hero() {
       >
         <source src="https://res.cloudinary.com/dar4m0jyt/video/upload/f_auto,q_auto/phone_home_page_2_aicftt.mp4" type="video/mp4" />
       </video>
-      {/* Background Video — Desktop: landscape, defer load until mobile video done */}
       <video
         autoPlay
         loop
