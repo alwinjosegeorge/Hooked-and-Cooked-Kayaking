@@ -21,6 +21,7 @@ export default function Hero() {
       
       {/* Background Video — Mobile: portrait, autoplay, high priority */}
       <video
+        src="https://res.cloudinary.com/dar4m0jyt/video/upload/f_auto,q_auto/phone_home_page_2_aicftt.mp4"
         poster="/hero_bg.webp"
         autoPlay
         loop
@@ -28,19 +29,17 @@ export default function Hero() {
         playsInline
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-95 block md:hidden transform-gpu will-change-transform"
-      >
-        <source src="https://res.cloudinary.com/dar4m0jyt/video/upload/f_auto,q_auto/phone_home_page_2_aicftt.mp4" type="video/mp4" />
-      </video>
+      />
+      {/* Background Video — Desktop: landscape, defer load until mobile video done */}
       <video
+        src="https://res.cloudinary.com/dar4m0jyt/video/upload/f_auto,q_auto/IMG_8598_fuo3mp.mp4"
         autoPlay
         loop
         muted
         playsInline
         preload="none"
         className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-95 hidden md:block transform-gpu will-change-transform"
-      >
-        <source src="https://res.cloudinary.com/dar4m0jyt/video/upload/f_auto,q_auto/IMG_8598_fuo3mp.mp4" type="video/mp4" />
-      </video>
+      />
       {/* Dark overlay matching the moody cinematic Scandinavian travel vibe */}
       <div className="absolute inset-0 z-0 bg-gradient-to-t from-abyss-black via-abyss-black/35 to-black/50" />
       <div className="absolute inset-0 z-0 bg-radial-gradient from-transparent via-transparent to-abyss-black/75" />
