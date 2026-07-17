@@ -28,6 +28,14 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/onam",
+      "destination": "https://onam-sadhya-booking.vercel.app/onam"
+    },
+    {
+      "source": "/onam/:path*",
+      "destination": "https://onam-sadhya-booking.vercel.app/onam/:path*"
+    },
     { "source": "/api/(.*)", "destination": "/api/index.js" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
